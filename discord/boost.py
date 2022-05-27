@@ -17,6 +17,7 @@ bot = lightbulb.BotApp(
 async def ping_command(ctx):
     pass
 
+
 @bot.command
 @lightbulb.option("question", "The question that the magic-8ball should answer.", str, required=True)
 @lightbulb.command("8ball", "Answers a question with the magic-8ball's answer.")
