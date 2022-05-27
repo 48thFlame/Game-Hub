@@ -8,7 +8,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
-type slashCommandHandlerType func(s *dg.Session, i *dg.InteractionCreate)
+type SlashCommandHandlerType func(s *dg.Session, i *dg.InteractionCreate)
 
 func NewBot(tokenFilePath, pyInterpreter, pyCommandsFile string) (*Bot, error) {
 	bot := &Bot{}
@@ -23,7 +23,7 @@ func NewBot(tokenFilePath, pyInterpreter, pyCommandsFile string) (*Bot, error) {
 		return nil, err
 	}
 
-	cmdsHandlers := make(map[string]slashCommandHandlerType)
+	cmdsHandlers := make(map[string]SlashCommandHandlerType)
 
 	s.AddHandler(func(s *dg.Session, i *dg.InteractionCreate) {
 		if i.Type == dg.InteractionApplicationCommand {
@@ -51,7 +51,7 @@ func NewBot(tokenFilePath, pyInterpreter, pyCommandsFile string) (*Bot, error) {
 
 type Bot struct {
 	S                             *dg.Session
-	cmdsHandlers                  map[string]slashCommandHandlerType
+	cmdsHandlers                  map[string]SlashCommandHandlerType
 	pyInterpreter, pyCommandsFile string
 }
 
@@ -64,6 +64,6 @@ func (b *Bot) runPyScript() (err error) {
 	return
 }
 
-func (b *Bot) AddCommandHandler(name string, handler slashCommandHandlerType) {
+func (b *Bot) AddCommandHandler(name string, handler SlashCommandHandlerType) {
 	b.cmdsHandlers[name] = handler
 }

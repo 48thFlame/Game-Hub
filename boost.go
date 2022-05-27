@@ -2,19 +2,23 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/avitar64/Boost-bot/discord"
-	dg "github.com/bwmarrin/discordgo"
+	"github.com/avitar64/Boost-bot/discord/commands"
 )
 
 const (
 	pyInterpreter  = "python3.10"
-	pyCommandsFile = "./discord/commands.py"
+	pyCommandsFile = "./discord/boost.py"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	var err error
 	var bot *discord.Bot
 
@@ -23,31 +27,16 @@ func main() {
 		log.Fatalf("Error creating bot: %v\n", err)
 	}
 
-	bot.AddCommandHandler(
-		"ping",
-		func(s *dg.Session, i *dg.InteractionCreate) {
-			s.InteractionRespond(
-				i.Interaction,
-				&dg.InteractionResponse{
-					Type: dg.InteractionResponseChannelMessageWithSource,
-					Data: &dg.InteractionResponseData{
-						Content: "Pong!",
-					},
-				},
-			)
-		},
-	)
+	commands := commands.ExportCommands()
+	for name, handler := range commands {
+		bot.AddCommandHandler(name, handler)
+	}
 
 	err = bot.S.Open()
 	if err != nil {
 		log.Fatalf("Error opening bot session: %v\n", err)
 	}
 	defer bot.S.Close()
-
-	err = bot.S.UpdateListeningStatus("any given feedback!")
-	if err != nil {
-		log.Fatalf("Error setting listening status: %v\n", err)
-	}
 
 	// Wait for a quit signal to quit
 	stop := make(chan os.Signal, 1)

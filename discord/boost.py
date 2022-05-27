@@ -12,16 +12,23 @@ bot = lightbulb.BotApp(
 
 
 @bot.command
-@lightbulb.command('ping', 'ping.')
+@lightbulb.command("ping", "ping.")
 @lightbulb.implements(lightbulb.commands.SlashCommand)
 async def ping_command(ctx):
+    pass
+
+@bot.command
+@lightbulb.option("question", "The question that the magic-8ball should answer.", str, required=True)
+@lightbulb.command("8ball", "Answers a question with the magic-8ball's answer.")
+@lightbulb.implements(lightbulb.commands.SlashCommand)
+async def ball8_command(ctx):
     pass
 
 
 @bot.listen(hikari.StartedEvent)
 async def on_ready(event) -> None:
     print(
-        f'{bot.get_me()} - [python version] has connected to Discord! ( ﾉ ﾟｰﾟ)ﾉ'
+        f"{bot.get_me()} - [python version] has connected to Discord! ( ﾉ ﾟｰﾟ)ﾉ"
     )
 
 if __name__ == "__main__":
