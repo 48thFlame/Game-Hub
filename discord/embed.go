@@ -34,11 +34,11 @@ func (e *Embed) SetFooter(iconUrl, text string) *Embed {
 	return e
 }
 
-func (e *Embed) SetAuthor(url, name, iconUrl string) *Embed {
+func (e *Embed) SetAuthor(iconUrl, name, url string) *Embed {
 	e.Author = &dg.MessageEmbedAuthor{
-		URL:     url,
-		Name:    name,
 		IconURL: iconUrl,
+		Name:    name,
+		URL:     url,
 	}
 
 	return e
