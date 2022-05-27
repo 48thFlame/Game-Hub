@@ -1,12 +1,21 @@
 package commands
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 
 	"github.com/avitar64/Boost-bot/discord"
 	dg "github.com/bwmarrin/discordgo"
 )
+
+func Ping(s *dg.Session, i *dg.InteractionCreate) {
+	err := discord.InteractionRespond(s, i.Interaction, discord.InstaMessage, &dg.InteractionResponseData{Content: fmt.Sprintf("Pong! %v", s.HeartbeatLatency())})
+
+	if err != nil {
+		discord.Error(err)
+	}
+}
 
 var ball8Answers = [...]string{
 	"It is certain",
