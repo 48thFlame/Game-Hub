@@ -12,6 +12,7 @@ func ExportCommands() exportedCommands {
 	ec["dice"] = Dice
 	ec["coinflip"] = Coinflip
 	ec["poll"] = Poll
+	ec["info"] = Info
 
 	return ec
 }

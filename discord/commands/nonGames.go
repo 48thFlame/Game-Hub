@@ -142,6 +142,44 @@ func Coinflip(s *dg.Session, i *dg.InteractionCreate) {
 }
 
 const (
+	botInviteLink = "https://bit.ly/3aykHRP"
+	boostDiscordServer = "https://discord.gg/ZR2EspdHFQ"
+)
+
+func Info(s *dg.Session, i *dg.InteractionCreate) {
+	embed := discord.NewEmbed().
+		SetupEmbed().
+		SetAuthor("attachment://info.png", "Info", "").
+		SetDescription("An entertainment bot, with many useful commands as well.").
+		AddField("Bot invite link:", botInviteLink, false).
+		AddField("Boost Discord server:", boostDiscordServer, false).
+		AddField("Icons by:", "https://icons8.com", false).MessageEmbed
+	
+	infoR, err := os.Open("./discord/assets/info.png")
+	if err != nil {
+		discord.Error(fmt.Errorf("error opening info.png: %v", err))
+	}
+
+	boostR, err := os.Open("./discord/assets/boost.png")
+	if err != nil {
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+	}
+
+	err = discord.InteractionRespond(
+		s,
+		i.Interaction,
+		dg.InteractionResponseChannelMessageWithSource,
+		&dg.InteractionResponseData{
+			Embeds: []*dg.MessageEmbed{embed},
+			Files:  []*dg.File{{Name: "info.png", Reader: infoR}, {Name: "boost.png", Reader: boostR}},
+		},
+	)
+	if err != nil {
+		discord.Error(fmt.Errorf("error responding to info command interaction: %v", err))
+	}
+}
+
+const (
 	pollReactionPositive = "👍"
 	pollReactionNegative = "👎"
 )
