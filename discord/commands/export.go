@@ -9,6 +9,9 @@ func ExportCommands() exportedCommands {
 
 	ec["ping"] = Ping
 	ec["8ball"] = Ball8
+	ec["dice"] = Dice
+	ec["coinflip"] = Coinflip
+	ec["poll"] = Poll
 
 	return ec
 }
