@@ -44,7 +44,12 @@ func NewBot(tokenFilePath, pyInterpreter, pyCommandsFile string) (*Bot, error) {
 	bot.pyInterpreter = pyInterpreter
 	bot.pyCommandsFile = pyCommandsFile
 
-	go bot.runPyScript()
+	go func() {
+		err := bot.runPyScript()
+		if err != nil {
+			log.Fatalf("Error while running python script: %v\n", err)
+		}
+	}()
 
 	return bot, nil
 }
