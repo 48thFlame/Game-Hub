@@ -3,8 +3,6 @@ import lightbulb
 
 
 def loadNonGamesCommands(bot: lightbulb.BotApp):
-    print(bot)
-
     @bot.command
     @lightbulb.command("ping", "ping.")
     @lightbulb.implements(lightbulb.commands.SlashCommand)
