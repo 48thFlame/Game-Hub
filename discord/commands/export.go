@@ -1,8 +1,13 @@
 package commands
 
-import "github.com/avitar64/Boost-bot/discord"
+import (
+	"github.com/avitar64/Boost-bot/discord"
+	dg "github.com/bwmarrin/discordgo"
+)
 
 type exportedCommands map[string]discord.SlashCommandHandlerType
+
+func emptySlashCommandHandler(*dg.Session, *dg.InteractionCreate) {}
 
 func ExportCommands() exportedCommands {
 	ec := make(exportedCommands)
@@ -13,6 +18,8 @@ func ExportCommands() exportedCommands {
 	ec["coinflip"] = Coinflip
 	ec["poll"] = Poll
 	ec["info"] = Info
+
+	ec["calculator"] = emptySlashCommandHandler
 
 	return ec
 }
