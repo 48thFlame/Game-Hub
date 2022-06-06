@@ -10,6 +10,9 @@ C_DEL_SYMBOL: str = '⌫'
 C_START_MSG: str = '0\u200b'
 C_START_OF_BUTTON_CUSTOM_ID: str = 'calculator_button:'
 C_SYNTAX_ERROR_MSG: str = 'Syntax error!'
+MAX_EMBED_TITLE_LEN: int = 255
+C_ERROR_TOO_LONG: str = f'Problem too long! (max {MAX_EMBED_TITLE_LEN} characters)'
+C_ERRORS: set[str] = {C_ERROR_TOO_LONG, C_SYNTAX_ERROR_MSG}
 
 C_BUTTON_STYLE_EQUAL: int = ButtonStyle.SUCCESS
 C_BUTTON_STYLE_ERASE: int = ButtonStyle.DANGER
@@ -40,19 +43,19 @@ C_BUTTONS: list[list[tuple[str, int]]] = [
 ]
 
 C_OPERATIONS: set[str] = {'+', '-', '*', '/'}
+# chars that need to have a \ before them to stop discord formatting
 DISCORD_SPECIALS: set[str] = {'*'}
 
 
 def load_calculator(bot: lightbulb.BotApp):
     class CalculatorCommand:
-
         @staticmethod
         def is_blank(title: str) -> bool:
             return title.endswith(C_START_MSG)
 
         @staticmethod
         def is_error(title: str) -> bool:
-            return title.endswith(C_SYNTAX_ERROR_MSG)
+            return title in C_ERRORS
 
         @staticmethod
         def is_operation(obj: str) -> bool:
@@ -98,17 +101,15 @@ def load_calculator(bot: lightbulb.BotApp):
                 embed_title = self.clear_to_answer(embed_title_input)
             elif self.is_error(embed_title_input) or len(embed_title_input) == 1:
                 embed_title = C_START_MSG
-            elif self.is_discord_special(embed_title_input[:-1]):
+            elif self.is_discord_special(embed_title_input[-1]):
                 embed_title = embed_title_input[:-2]
             else:
                 embed_title = embed_title_input[:-1]
 
             return embed_title
 
-        def button_equal(self, embed_title_input: str) -> str | None:
-            if self.is_blank(embed_title_input) or self.gave_answer(embed_title_input):
-                return
-            elif self.is_error(embed_title_input):
+        def button_equal(self, embed_title_input: str) -> str:
+            if self.is_blank(embed_title_input) or self.gave_answer(embed_title_input) or self.is_error(embed_title_input):
                 return C_START_MSG
             else:
                 answer = str(embed_title_input).replace('\\', '')
@@ -118,10 +119,16 @@ def load_calculator(bot: lightbulb.BotApp):
                 except Exception:
                     return C_SYNTAX_ERROR_MSG
 
-            return f'{embed_title_input}={answer}\u200b'
+            embed_title = f'{embed_title_input}={answer}\u200b'
+
+            if len(embed_title) > MAX_EMBED_TITLE_LEN:
+                return C_ERROR_TOO_LONG
+
+            return embed_title
 
         def button_any(self, embed_title_input: str, value: str) -> str:
             embed_title = embed_title_input
+
             if self.gave_answer(embed_title_input):
                 if self.is_operation(value):
                     embed_title = self.clear_to_answer(embed_title_input)
@@ -157,6 +164,8 @@ def load_calculator(bot: lightbulb.BotApp):
                 embed_title = self.button_clear()
             elif value == C_DEL_SYMBOL:
                 embed_title = self.button_del(embed_title)
+            elif len(embed_title) >= MAX_EMBED_TITLE_LEN:
+                embed_title = C_ERROR_TOO_LONG
             elif value == C_EQUAL_SYMBOL:
                 embed_title = self.button_equal(embed_title)
             else:  # any other button
