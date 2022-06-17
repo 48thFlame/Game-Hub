@@ -11,35 +11,49 @@ func newAliases(a ...string) []string {
 	return a
 }
 
-func newCommand(aliases []string, handler func([]string)) *command {
+func newCommand(aliases []string, handler commandHandler) *command {
 	return &command{
 		aliases: aliases,
 		handler: handler,
 	}
 }
 
+type commandHandler func(*terminal, []string)
 type command struct {
 	aliases []string
-	handler func([]string)
+	handler commandHandler
 }
 
 func newTerminal(cmds []*command) *terminal {
 	t := &terminal{
-		cmdMap: make(map[string]*command),
+		cmds:       make([]*command, 0),
+		handlerMap: make(map[string]commandHandler),
+		data:       make(map[string]any),
 	}
 
 	cmds = append(
 		cmds,
 		newCommand(
-			newAliases("e", "exit"), func(args []string) {
+			newAliases("exit", "e"),
+			func(_ *terminal, args []string) {
 				os.Exit(0)
+			},
+		),
+		newCommand(
+			newAliases("help", "h"),
+			func(t *terminal, args []string) {
+				for _, c := range t.cmds {
+					fmt.Println(c.aliases[0])
+				}
 			},
 		),
 	)
 
+	t.cmds = cmds
+
 	for _, c := range cmds {
 		for _, name := range c.aliases {
-			t.cmdMap[name] = c
+			t.handlerMap[name] = c.handler
 		}
 	}
 
@@ -47,7 +61,9 @@ func newTerminal(cmds []*command) *terminal {
 }
 
 type terminal struct {
-	cmdMap map[string]*command
+	cmds       []*command
+	handlerMap map[string]commandHandler
+	data       map[string]any
 }
 
 func (t *terminal) handleInput(input []string) {
@@ -55,15 +71,15 @@ func (t *terminal) handleInput(input []string) {
 		return
 	}
 
-	if cmd, ok := t.cmdMap[input[0]]; ok {
-		cmd.handler(input[1:])
+	if cmd, ok := t.handlerMap[input[0]]; ok {
+		cmd(t, input[1:])
 	} else {
 		fmt.Printf("Command '%v' not found\n", input[0])
 	}
 }
 
 func (t *terminal) run() {
-	fmt.Println("Boost shell, type 'exit' to exit")
+	fmt.Println("Boost shell, type 'help' to see all commands")
 	for {
 		fmt.Print("> ")
 		reader := bufio.NewReader(os.Stdin)
@@ -77,14 +93,6 @@ func (t *terminal) run() {
 	}
 }
 
-func main() {
-	myCommand := newCommand(
-		newAliases("c", "cmd"),
-		func(args []string) {
-			fmt.Println("Test command called with args:", args)
-		},
-	)
-
-	t := newTerminal([]*command{myCommand})
-	t.run()
+func (t *terminal) Error(msg string) {
+	fmt.Println("!!Error:", msg)
 }
