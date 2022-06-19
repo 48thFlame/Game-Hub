@@ -129,7 +129,7 @@ type MastermindGame struct {
 
 func (m *MastermindGame) String() (str string) {
 	str += masterHighlighter + "Answer:" + masterHighlighter + "\n"
-	str += strings.Repeat(masterSecretEmoji, 4) + masterBoardSeparator + strings.Repeat(Black.String(), 4) + "\n"
+	str += strings.Repeat(masterSecretEmoji + " ", 4) + masterBoardSeparator + strings.Repeat(Black.String() + " ", 4) + "\n"
 
 	var guess [4]MasterColor
 	var result []MasterResult
@@ -148,10 +148,12 @@ func (m *MastermindGame) String() (str string) {
 
 		for _, color := range guess {
 			str += color.String()
+			str += " "
 		}
 		str += masterBoardSeparator
 		for _, result := range result {
 			str += result.String()
+			str += " "
 		}
 		if i != masterGameLen-1 { // if its not the last round then should add new line char
 			str += "\n"
