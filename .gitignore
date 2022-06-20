@@ -1,3 +1,4 @@
 .vscode
 TOKEN.txt
 __pycache__
+db
