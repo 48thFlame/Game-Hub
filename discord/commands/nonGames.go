@@ -142,7 +142,7 @@ func Coinflip(s *dg.Session, i *dg.InteractionCreate) {
 }
 
 const (
-	botInviteLink = "https://bit.ly/3aykHRP"
+	botInviteLink      = "https://bit.ly/3aykHRP"
 	boostDiscordServer = "https://discord.gg/ZR2EspdHFQ"
 )
 
@@ -154,7 +154,7 @@ func Info(s *dg.Session, i *dg.InteractionCreate) {
 		AddField("Bot invite link:", botInviteLink, false).
 		AddField("Boost Discord server:", boostDiscordServer, false).
 		AddField("Icons by:", "https://icons8.com", false).MessageEmbed
-	
+
 	infoR, err := os.Open("./discord/assets/info.png")
 	if err != nil {
 		discord.Error(fmt.Errorf("error opening info.png: %v", err))
@@ -192,7 +192,7 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 	embed := discord.NewEmbed().
 		SetupEmbed().
 		SetAuthor("attachment://poll.png", "Poll", "").
-		AddField(fmt.Sprintf("%v's poll:", i.Member.User), poll, false).MessageEmbed
+		AddField(fmt.Sprintf("%v's poll:", discord.GetInteractionUser(i.Interaction)), poll, false).MessageEmbed
 
 	pollR, err := os.Open("./discord/assets/poll.png")
 	if err != nil {

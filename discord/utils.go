@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	InstaMessage    = dg.InteractionResponseChannelMessageWithSource
+	InstaMessage      = dg.InteractionResponseChannelMessageWithSource
 	DefferSendMessage = dg.InteractionResponseDeferredChannelMessageWithSource
 )
 
@@ -28,4 +28,12 @@ func InteractionRespond(s *dg.Session, i *dg.Interaction, t dg.InteractionRespon
 func InteractionEdit(s *dg.Session, i *dg.Interaction, newresp *dg.WebhookEdit) error {
 	_, err := s.InteractionResponseEdit(i, newresp)
 	return err
+}
+
+func GetInteractionUser(i *dg.Interaction) *dg.User {
+	u, m := i.User, i.Member
+	if u != nil {
+		return u
+	}
+	return m.User
 }
