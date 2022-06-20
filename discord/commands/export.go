@@ -12,6 +12,7 @@ func emptySlashCommandHandler(*dg.Session, *dg.InteractionCreate) {}
 func ExportCommands() exportedCommands {
 	ec := make(exportedCommands)
 
+	// non games
 	ec["ping"] = Ping
 	ec["8ball"] = Ball8
 	ec["dice"] = Dice
@@ -19,6 +20,10 @@ func ExportCommands() exportedCommands {
 	ec["poll"] = Poll
 	ec["info"] = Info
 
+	// games
+	ec["mastermind"] = Mastermind
+
+	// python-executed commands
 	ec["calculator"] = emptySlashCommandHandler
 
 	return ec
