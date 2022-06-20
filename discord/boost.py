@@ -3,6 +3,8 @@ from commands.nonGames import loadNonGamesCommands
 import hikari
 import lightbulb
 
+from commands.mastermind import load_mastermind_commands
+
 
 with open("./discord/TOKEN.txt", "r") as f:
     TOKEN = f.readline().strip()
@@ -18,6 +20,7 @@ bot = lightbulb.BotApp(
 async def load_commands(event):
     loadNonGamesCommands(bot)
     load_calculator(bot)
+    load_mastermind_commands(bot)
 
 
 @bot.listen(hikari.StartedEvent)
