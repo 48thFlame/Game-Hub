@@ -25,6 +25,7 @@ func ExportCommands() exportedCommands {
 
 	// python-executed commands
 	ec["calculator"] = emptySlashCommandHandler
+	ec["help"] = emptySlashCommandHandler
 
 	return ec
 }
