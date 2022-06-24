@@ -2,7 +2,7 @@ import hikari
 import lightbulb
 
 MASTERMIND_GUESS_CHOICES = (
-    "🟥 - Red", "🟧 - Orange", "🟨 - Yellow", "🟩 - Green", "🟦 - Blue", "🟪 - Purple",
+    "🟥 - red", "🟧 - orange", "🟨 - yellow", "🟩 - green", "🟦 - blue", "🟪 - purple",
 )
 MASTERMIND_BLACK_RESULT = "✅"
 MASTERMIND_WHITE_RESULT = "❎"

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	masterGameLen        = 7
+	MasterGameLen        = 7
 	masterHighlighter    = "**"
 	masterSecretEmoji    = "❓"
 	masterBoardSeparator = " -- "
@@ -33,25 +33,18 @@ func (c MasterColor) String() string {
 	switch c {
 	case Empty:
 		return "🔳"
-		// return "empty"
 	case Red:
 		return "🟥"
-		// return "red"
 	case Orange:
 		return "🟧"
-		// return "orange"
 	case Yellow:
 		return "🟨"
-		// return "yellow"
 	case Green:
 		return "🟩"
-		// return "green"
 	case Blue:
 		return "🟦"
-		// return "blue"
 	case Purple:
 		return "🟪"
-		// return "purple"
 	default:
 		return ""
 	}
@@ -129,12 +122,13 @@ type MastermindGame struct {
 
 func (m *MastermindGame) String() (str string) {
 	str += masterHighlighter + "Answer:" + masterHighlighter + "\n"
-	str += strings.Repeat(masterSecretEmoji + " ", 4) + masterBoardSeparator + strings.Repeat(Black.String() + " ", 4) + "\n"
+	str += strings.Repeat(masterSecretEmoji+" ", 4) + masterBoardSeparator + strings.Repeat(Black.String()+" ", 4) + "\n"
+	// str += m.GetAnswerString("") + "\n"
 
 	var guess [4]MasterColor
 	var result []MasterResult
 
-	for i := 0; i < masterGameLen; i++ {
+	for i := 0; i < MasterGameLen; i++ {
 		if len(m.Guesses) > i { //if guessed up until now, use the guess, otherwise use a blank/empty guess
 			guess = m.Guesses[i]
 			result = m.results[i]
@@ -155,7 +149,7 @@ func (m *MastermindGame) String() (str string) {
 			str += result.String()
 			str += " "
 		}
-		if i != masterGameLen-1 { // if its not the last round then should add new line char
+		if i != MasterGameLen-1 { // if its not the last round then should add new line char
 			str += "\n"
 		}
 	}
@@ -165,10 +159,31 @@ func (m *MastermindGame) String() (str string) {
 
 // guess on the game, returns whether user won or not
 func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
+	results := getGuessResult(guess, m.Answer)
+
+	m.Guesses = append(m.Guesses, guess)
+	m.results = append(m.results, results)
+
+	return reflect.DeepEqual(results, perfectGuessResult)
+}
+
+// fills results for all already guessed (use when taking game out of json for example)
+func (m *MastermindGame) FillResults() {
+	for _, guess := range m.Guesses {
+		m.results = append(m.results, getGuessResult(guess, m.Answer))
+	}
+}
+
+func (m *MastermindGame) GetAnswerString(sep string) string {
+	strs := []string{m.Answer[0].String(), m.Answer[1].String(), m.Answer[2].String(), m.Answer[3].String()}
+	return strings.Join(strs, sep)
+}
+
+func getGuessResult(guess, answer [4]MasterColor) []MasterResult {
 	results := make([]MasterResult, 0)
 
-	for cI, c := range m.Answer {
-		if c == guess[cI] {
+	for cI, c := range answer {
+		if guess[cI] == c {
 			results = append(results, Black)
 		} else if contains(guess[:], c) {
 			results = append(results, White)
@@ -182,10 +197,7 @@ func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
 		},
 	)
 
-	m.Guesses = append(m.Guesses, guess)
-	m.results = append(m.results, results)
-
-	return reflect.DeepEqual(results, perfectGuessResult)
+	return results
 }
 
 func contains(s []MasterColor, i MasterColor) bool {

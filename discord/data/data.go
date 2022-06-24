@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+// returns whether the given file exists
+func DataExists(filePath string) bool {
+	_, err := os.Stat(fmt.Sprintf("./discord/db/%v", filePath))
+	return !os.IsNotExist(err)
+}
+
 // loads the data from the given json file from db/ folder to the given data structure
 func LoadData(filePath string, data interface{}) error {
 	f, err := os.Open(fmt.Sprintf("./discord/db/%v", filePath))
@@ -40,8 +46,11 @@ func SaveData(filePath string, data interface{}) error {
 	return nil
 }
 
-// returns whether the given file exists
-func DataExists(filePath string) bool {
-	_, err := os.Stat(fmt.Sprintf("./discord/db/%v", filePath))
-	return !os.IsNotExist(err)
+func DeleteData(filePath string) error {
+	err := os.Remove(fmt.Sprintf("./discord/db/%v", filePath))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
