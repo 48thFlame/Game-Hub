@@ -19,6 +19,7 @@ def load_help_command(bot: lightbulb.BotApp):
     @lightbulb.implements(lightbulb.commands.SlashCommand)
     async def help_callback(ctx: lightbulb.context.Context) -> None:
         _commands = [command for command in ctx.bot.slash_commands]
+        _commands.sort()
 
         embed = init_embed()
         embed.set_author(name='Help', icon='./discord/assets/help.png')
