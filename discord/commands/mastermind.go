@@ -45,6 +45,34 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 	id := discord.GetInteractionUser(i.Interaction).ID
 	hasGame := data.DataExists(data.GetMastermindFileName(id))
 
+	if cmdName == "new-game" {
+		if hasGame {
+			err = data.DeleteData(data.GetMastermindFileName(id))
+			if err != nil {
+				discord.Error(fmt.Errorf("error deleting mastermind game: %v", err))
+			}
+			user, err := data.LoadUser(id)
+			if err != nil {
+				discord.Error(fmt.Errorf("error loading user: %v", err))
+				return
+			}
+			user.Stats.Mastermind.Losses++
+			err = data.SaveData(data.GetUserFileName(id), user)
+			if err != nil {
+				discord.Error(fmt.Errorf("error saving user: %v", err))
+			}
+		}
+		discord.InteractionRespond(
+			s,
+			i.Interaction,
+			discord.InstaMessage,
+			&dg.InteractionResponseData{
+				Content: "New mastermind game successfully started!",
+			},
+		)
+		return
+	}
+
 	// load game data or create new game
 	if hasGame {
 		err = data.LoadData(data.GetMastermindFileName(id), game)
