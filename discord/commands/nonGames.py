@@ -49,3 +49,10 @@ def loadNonGamesCommands(bot: lightbulb.BotApp):
     @lightbulb.implements(lightbulb.SlashCommand)
     async def poll_command(ctx):
         pass
+
+    @bot.command
+    @lightbulb.option('feedback', 'Your feedback.')
+    @lightbulb.command('feedback', 'Sends your feedback to the developers.')
+    @lightbulb.implements(lightbulb.commands.SlashCommand)
+    async def feedback_command(ctx):
+        pass

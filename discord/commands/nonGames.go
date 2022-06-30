@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/avitar64/Boost-bot/discord"
+	"github.com/avitar64/Boost-bot/discord/data"
 	dg "github.com/bwmarrin/discordgo"
 )
 
@@ -226,5 +227,66 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 	err = discord.InteractionEdit(s, i.Interaction, &dg.WebhookEdit{Content: "Done!"})
 	if err != nil {
 		discord.Error(fmt.Errorf("error editing poll interaction: %v", err))
+	}
+}
+
+const feedbackChannelId = "991064540731031553"
+
+func Feedback(s *dg.Session, i *dg.InteractionCreate) {
+	var err error
+	options := i.ApplicationCommandData().Options
+	interactionUser := discord.GetInteractionUser(i.Interaction)
+
+	userData, err := data.LoadUser(interactionUser.ID)
+	if err != nil {
+		discord.Error(fmt.Errorf("error loading user data: %v", err))
+	}
+
+	if userData.Feedback {
+		err = discord.InteractionRespond(
+			s,
+			i.Interaction,
+			discord.InstaMessage,
+			&dg.InteractionResponseData{Content: "You are banned from using the feedback command!"},
+		)
+		if err != nil {
+			discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err))
+		}
+
+		return
+	}
+
+	err = discord.InteractionRespond(
+		s,
+		i.Interaction,
+		discord.DefferSendMessage,
+		nil,
+	)
+	if err != nil {
+		discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err))
+	}
+
+	embed := discord.NewEmbed().
+		SetAuthor("", "Feedback", "").
+		SetTitle(fmt.Sprintf("%v, name at time: %v", interactionUser.ID, interactionUser.String())).
+		SetDescription(options[0].StringValue()).MessageEmbed
+
+	_, err = s.ChannelMessageSendEmbed(
+		feedbackChannelId,
+		embed,
+	)
+	if err != nil {
+		discord.Error(fmt.Errorf("error sending feedback: %v", err))
+	}
+
+	err = discord.InteractionEdit(
+		s,
+		i.Interaction,
+		&dg.WebhookEdit{
+			Content: "Thank you for your feedback! 😎\n\u200b\n||**WARNING:** DO NOT SPAM! spamming will lead to a ban from using the feedback command!||",
+		},
+	)
+	if err != nil {
+		discord.Error(fmt.Errorf("error responding to feedback command interaction with deffer thing: %v", err))
 	}
 }

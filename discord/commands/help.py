@@ -15,7 +15,7 @@ def init_embed() -> hikari.Embed:
 
 def load_help_command(bot: lightbulb.BotApp):
     @bot.command
-    @lightbulb.command('help', 'Sends bot help.')
+    @lightbulb.command('help', 'Sends a list of all available commands.')
     @lightbulb.implements(lightbulb.commands.SlashCommand)
     async def help_callback(ctx: lightbulb.context.Context) -> None:
         _commands = [command for command in ctx.bot.slash_commands]

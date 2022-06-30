@@ -19,6 +19,7 @@ func ExportCommands() exportedCommands {
 	ec["coinflip"] = Coinflip
 	ec["poll"] = Poll
 	ec["info"] = Info
+	ec["feedback"] = Feedback
 
 	// games
 	ec["mastermind"] = Mastermind

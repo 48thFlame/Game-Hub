@@ -10,6 +10,7 @@ type User struct {
 			Rounds int `json:"rounds"`
 		} `json:"mastermind"`
 	} `json:"stats"`
+	Feedback bool `json:"feedback"` // whether is banned from using the feedback command
 }
 
 func GetUserFileName(id string) string {
@@ -26,5 +27,6 @@ func LoadUser(id string) (*User, error) {
 			return nil, err
 		}
 	}
+
 	return user, nil
 }

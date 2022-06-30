@@ -2,6 +2,7 @@ from commands.calculator import load_calculator
 from commands.nonGames import loadNonGamesCommands
 from commands.mastermind import load_mastermind_commands
 from commands.help import load_help_command
+from commands.dm_control import load_dm_control
 import hikari
 import lightbulb
 
@@ -22,6 +23,7 @@ async def load_commands(event):
     load_calculator(bot)
     load_mastermind_commands(bot)
     load_help_command(bot)
+    load_dm_control(bot)
 
 
 @bot.listen(hikari.StartedEvent)
