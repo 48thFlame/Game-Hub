@@ -56,3 +56,10 @@ def loadNonGamesCommands(bot: lightbulb.BotApp):
     @lightbulb.implements(lightbulb.commands.SlashCommand)
     async def feedback_command(ctx):
         pass
+
+    
+    @bot.command
+    @lightbulb.command("statistics", "Sends your game statistics.")
+    @lightbulb.implements(lightbulb.commands.SlashCommand)
+    async def statistics_command(ctx):
+        pass

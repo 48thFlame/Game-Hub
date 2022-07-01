@@ -290,3 +290,48 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 		discord.Error(fmt.Errorf("error responding to feedback command interaction with deffer thing: %v", err))
 	}
 }
+
+func Statistics(s *dg.Session, i *dg.InteractionCreate) {
+	id := discord.GetInteractionUser(i.Interaction).ID
+	userData, err := data.LoadUser(id)
+	if err != nil {
+		discord.Error(fmt.Errorf("error loading user data: %v", err))
+	}
+
+	wins, losses, rounds := userData.Stats.Mastermind.Wins, userData.Stats.Mastermind.Losses, userData.Stats.Mastermind.Rounds
+	totalGames := wins + losses
+
+	mastermindStatsStr := ""
+	mastermindStatsStr += fmt.Sprintf("> Wins: %v\n", wins)
+	mastermindStatsStr += fmt.Sprintf("> Losses: %v\n", losses)
+	mastermindStatsStr += fmt.Sprintf("> Total games: %v\n", totalGames)
+	mastermindStatsStr += fmt.Sprintf("> Average rounds to victory: %v\n", float64(rounds)/float64(wins))
+
+	embed := discord.NewEmbed().
+		SetupEmbed().
+		SetAuthor("attachment://stats.png", "Statistics", "").
+		AddField("Mastermind:", mastermindStatsStr, false).MessageEmbed
+
+	statsR, err := os.Open("./discord/assets/stats.png")
+	if err != nil {
+		discord.Error(fmt.Errorf("error opening stats.png: %v", err))
+	}
+
+	boostR, err := os.Open("./discord/assets/boost.png")
+	if err != nil {
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+	}
+
+	err = discord.InteractionRespond(
+		s,
+		i.Interaction,
+		discord.InstaMessage,
+		&dg.InteractionResponseData{
+			Embeds: []*dg.MessageEmbed{embed},
+			Files:  []*dg.File{{Name: "stats.png", Reader: statsR}, {Name: "boost.png", Reader: boostR}},
+		},
+	)
+	if err != nil {
+		discord.Error(fmt.Errorf("error responding to statistics command interaction: %v", err))
+	}
+}

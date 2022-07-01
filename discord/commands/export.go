@@ -20,6 +20,7 @@ func ExportCommands() exportedCommands {
 	ec["poll"] = Poll
 	ec["info"] = Info
 	ec["feedback"] = Feedback
+	ec["statistics"] = Statistics
 
 	// games
 	ec["mastermind"] = Mastermind
