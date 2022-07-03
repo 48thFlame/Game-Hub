@@ -246,7 +246,7 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 	}
 }
 
-const feedbackChannelId = "991064540731031553"
+const feedbackChannelId = "845017352264351764"
 
 func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 	var err error
