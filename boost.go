@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -12,17 +13,25 @@ import (
 )
 
 const (
-	pyInterpreter  = "python3.10"
-	pyCommandsFile = "./discord/boost.py"
+	pyFilePath                = "./discord/boost.py"
+	pyInterpreterNameFilePath = "./pyInterpreterName.txt"
 )
+
+var pyInterpreter string
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-
 	var err error
+
+	b, err := ioutil.ReadFile(pyInterpreterNameFilePath)
+	if err != nil {
+		log.Fatalf("error opening pyInterpreterName.txt: %v", err)
+	}
+	pyInterpreter = string(b)
+
 	var bot *discord.Bot
 
-	bot, err = discord.NewBot("./discord/TOKEN.txt", pyInterpreter, pyCommandsFile)
+	bot, err = discord.NewBot("./discord/TOKEN.txt", pyInterpreter, pyFilePath)
 	if err != nil {
 		log.Fatalf("Error creating bot: %v\n", err)
 	}
