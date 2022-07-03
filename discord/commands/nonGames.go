@@ -15,7 +15,8 @@ func Ping(s *dg.Session, i *dg.InteractionCreate) {
 	err := discord.InteractionRespond(s, i.Interaction, discord.InstaMessage, &dg.InteractionResponseData{Content: fmt.Sprintf("Pong! %v", s.HeartbeatLatency())})
 
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to ping command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to ping command interaction: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -55,7 +56,8 @@ func Ball8(s *dg.Session, i *dg.InteractionCreate) {
 
 	r, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionRespond(s, i.Interaction, dg.InteractionResponseChannelMessageWithSource, &dg.InteractionResponseData{
@@ -64,7 +66,8 @@ func Ball8(s *dg.Session, i *dg.InteractionCreate) {
 	})
 
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to ball8 command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to ball8 command interaction: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -86,12 +89,14 @@ func Dice(s *dg.Session, i *dg.InteractionCreate) {
 
 	diceR, err := os.Open("./discord/assets/dice.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening dice.png: %v", err))
+		discord.Error(fmt.Errorf("error opening dice.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionRespond(
@@ -104,7 +109,8 @@ func Dice(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to dice command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to dice command interaction: %v", err), s, i.Interaction)
+		return
 	}
 
 }
@@ -121,12 +127,14 @@ func Coinflip(s *dg.Session, i *dg.InteractionCreate) {
 
 	cfr, err := os.Open("./discord/assets/coinflip.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening coinflip.png: %v", err))
+		discord.Error(fmt.Errorf("error opening coinflip.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionRespond(s,
@@ -138,7 +146,8 @@ func Coinflip(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to coinflip command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to coinflip command interaction: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -151,19 +160,20 @@ func Info(s *dg.Session, i *dg.InteractionCreate) {
 	embed := discord.NewEmbed().
 		SetupEmbed().
 		SetAuthor("attachment://info.png", "Info", "").
-		SetDescription("An entertainment bot, with many useful commands as well.").
 		AddField("Bot invite link:", botInviteLink, false).
 		AddField("Boost Discord server:", boostDiscordServer, false).
 		AddField("Icons by:", "https://icons8.com", false).MessageEmbed
 
 	infoR, err := os.Open("./discord/assets/info.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening info.png: %v", err))
+		discord.Error(fmt.Errorf("error opening info.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionRespond(
@@ -176,7 +186,8 @@ func Info(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to info command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to info command interaction: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -197,17 +208,20 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 
 	pollR, err := os.Open("./discord/assets/poll.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening poll.png: %v", err))
+		discord.Error(fmt.Errorf("error opening poll.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionRespond(s, i.Interaction, discord.DefferSendMessage, nil)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to poll command interaction with deffer thing: %v", err))
+		discord.Error(fmt.Errorf("error responding to poll command interaction with deffer thing: %v", err), s, i.Interaction)
+		return
 	}
 
 	msg, err := s.ChannelMessageSendComplex(
@@ -218,7 +232,8 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error sending poll: %v", err))
+		discord.Error(fmt.Errorf("error sending poll: %v", err), s, i.Interaction)
+		return
 	}
 
 	s.MessageReactionAdd(msg.ChannelID, msg.ID, pollReactionPositive)
@@ -226,7 +241,8 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 
 	err = discord.InteractionEdit(s, i.Interaction, &dg.WebhookEdit{Content: "Done!"})
 	if err != nil {
-		discord.Error(fmt.Errorf("error editing poll interaction: %v", err))
+		discord.Error(fmt.Errorf("error editing poll interaction: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -239,7 +255,8 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 
 	userData, err := data.LoadUser(interactionUser.ID)
 	if err != nil {
-		discord.Error(fmt.Errorf("error loading user data: %v", err))
+		discord.Error(fmt.Errorf("error loading user data: %v", err), s, i.Interaction)
+		return
 	}
 
 	if userData.Feedback {
@@ -250,7 +267,8 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 			&dg.InteractionResponseData{Content: "You are banned from using the feedback command!"},
 		)
 		if err != nil {
-			discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err))
+			discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err), s, i.Interaction)
+			return
 		}
 
 		return
@@ -263,7 +281,8 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 		nil,
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to feedback command interaction: %v", err), s, i.Interaction)
+		return
 	}
 
 	embed := discord.NewEmbed().
@@ -276,7 +295,8 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 		embed,
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error sending feedback: %v", err))
+		discord.Error(fmt.Errorf("error sending feedback: %v", err), s, i.Interaction)
+		return
 	}
 
 	err = discord.InteractionEdit(
@@ -287,7 +307,8 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to feedback command interaction with deffer thing: %v", err))
+		discord.Error(fmt.Errorf("error responding to feedback command interaction with deffer thing: %v", err), s, i.Interaction)
+		return
 	}
 }
 
@@ -295,7 +316,8 @@ func Statistics(s *dg.Session, i *dg.InteractionCreate) {
 	id := discord.GetInteractionUser(i.Interaction).ID
 	userData, err := data.LoadUser(id)
 	if err != nil {
-		discord.Error(fmt.Errorf("error loading user data: %v", err))
+		discord.Error(fmt.Errorf("error loading user data: %v", err), s, i.Interaction)
+		return
 	}
 
 	wins, losses, rounds := userData.Stats.Mastermind.Wins, userData.Stats.Mastermind.Losses, userData.Stats.Mastermind.Rounds
@@ -314,12 +336,13 @@ func Statistics(s *dg.Session, i *dg.InteractionCreate) {
 
 	statsR, err := os.Open("./discord/assets/stats.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening stats.png: %v", err))
+		discord.Error(fmt.Errorf("error opening stats.png: %v", err), s, i.Interaction)
+		return
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s, i.Interaction)
 	}
 
 	err = discord.InteractionRespond(
@@ -332,6 +355,6 @@ func Statistics(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to statistics command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to statistics command interaction: %v", err), s, i.Interaction)
 	}
 }

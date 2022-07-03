@@ -44,22 +44,23 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 	game := &games.MastermindGame{}
 	id := discord.GetInteractionUser(i.Interaction).ID
 	hasGame := data.DataExists(data.GetMastermindFileName(id))
+	interaction := i.Interaction
 
 	if cmdName == "new-game" {
 		if hasGame {
 			err = data.DeleteData(data.GetMastermindFileName(id))
 			if err != nil {
-				discord.Error(fmt.Errorf("error deleting mastermind game: %v", err))
+				discord.Error(fmt.Errorf("error deleting mastermind game: %v", err), s, interaction)
 			}
 			user, err := data.LoadUser(id)
 			if err != nil {
-				discord.Error(fmt.Errorf("error loading user: %v", err))
+				discord.Error(fmt.Errorf("error loading user: %v", err), s, interaction)
 				return
 			}
 			user.Stats.Mastermind.Losses++
 			err = data.SaveData(data.GetUserFileName(id), user)
 			if err != nil {
-				discord.Error(fmt.Errorf("error saving user: %v", err))
+				discord.Error(fmt.Errorf("error saving user: %v", err), s, interaction)
 			}
 		}
 		discord.InteractionRespond(
@@ -77,7 +78,7 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 	if hasGame {
 		err = data.LoadData(data.GetMastermindFileName(id), game)
 		if err != nil {
-			discord.Error(fmt.Errorf("error loading mastermind game: %v", err))
+			discord.Error(fmt.Errorf("error loading mastermind game: %v", err), s, interaction)
 		}
 	} else {
 		game = games.NewMastermindGame()
@@ -103,7 +104,7 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 	if needsToSave {
 		err = data.SaveData(data.GetMastermindFileName(id), game)
 		if err != nil {
-			discord.Error(fmt.Errorf("error saving mastermind game: %v", err))
+			discord.Error(fmt.Errorf("error saving mastermind game: %v", err), s, interaction)
 		}
 	}
 
@@ -125,7 +126,7 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 		// should update the user stats
 		user, err := data.LoadUser(id)
 		if err != nil {
-			discord.Error(fmt.Errorf("error loading user: %v", err))
+			discord.Error(fmt.Errorf("error loading user: %v", err), s, interaction)
 		}
 		if won {
 			user.Stats.Mastermind.Wins++
@@ -137,18 +138,18 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 		// should save the user
 		err = data.SaveData(data.GetUserFileName(id), user)
 		if err != nil {
-			discord.Error(fmt.Errorf("error saving user: %v", err))
+			discord.Error(fmt.Errorf("error saving user: %v", err), s, interaction)
 		}
 	}
 
 	boostR, err := os.Open("./discord/assets/boost.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening boost.png: %v", err))
+		discord.Error(fmt.Errorf("error opening boost.png: %v", err), s ,interaction)
 	}
 
 	mastermindR, err := os.Open("./discord/assets/mastermind.png")
 	if err != nil {
-		discord.Error(fmt.Errorf("error opening mastermind.png: %v", err))
+		discord.Error(fmt.Errorf("error opening mastermind.png: %v", err), s, interaction)
 	}
 
 	err = discord.InteractionRespond(
@@ -161,6 +162,6 @@ func Mastermind(s *dg.Session, i *dg.InteractionCreate) {
 		},
 	)
 	if err != nil {
-		discord.Error(fmt.Errorf("error responding to mastermind command interaction: %v", err))
+		discord.Error(fmt.Errorf("error responding to mastermind command interaction: %v", err), s ,interaction)
 	}
 }
