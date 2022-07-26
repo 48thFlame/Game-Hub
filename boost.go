@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -13,12 +13,8 @@ import (
 	"github.com/avitar64/Boost-bot/discord/commands"
 )
 
-const (
-	pyFilePath                = "./discord/boost.py"
-	pyInterpreterNameFilePath = "./pyInterpreterName.txt"
-)
-
-var pyInterpreter string
+var config = make(map[string]string)
+var pyInterpreterName, pyFilePath string
 
 func main() {
 	err := run()
@@ -31,15 +27,23 @@ func run() (err error) {
 	rand.Seed(time.Now().UnixNano())
 	log.Default().SetOutput(os.Stdout)
 
-	b, err := ioutil.ReadFile(pyInterpreterNameFilePath)
+	f, err := os.Open("config.json")
 	if err != nil {
-		return fmt.Errorf("error opening pyInterpreterName.txt: %v", err)
+		return fmt.Errorf("error opening config.json: %v", err)
 	}
-	pyInterpreter = string(b)
+	defer f.Close()
+
+	err = json.NewDecoder(f).Decode(&config)
+	if err != nil {
+		return fmt.Errorf("error decoding config.json: %v", err)
+	}
+
+	pyInterpreterName = config["pyInterpreterName"]
+	pyFilePath = config["pyFilePath"]
 
 	var bot *discord.Bot
 
-	bot, err = discord.NewBot("./discord/TOKEN.txt", pyInterpreter, pyFilePath)
+	bot, err = discord.NewBot("./discord/TOKEN.txt", pyInterpreterName, pyFilePath)
 	if err != nil {
 		return fmt.Errorf("error creating bot: %v", err)
 	}
