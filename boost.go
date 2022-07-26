@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -20,12 +21,19 @@ const (
 var pyInterpreter string
 
 func main() {
+	err := run()
+	if err != nil {
+		log.Fatalf("Error running bot, with error:\n%v\n", err)
+	}
+}
+
+func run() (err error) {
 	rand.Seed(time.Now().UnixNano())
-	var err error
+	log.Default().SetOutput(os.Stdout)
 
 	b, err := ioutil.ReadFile(pyInterpreterNameFilePath)
 	if err != nil {
-		log.Fatalf("error opening pyInterpreterName.txt: %v", err)
+		return fmt.Errorf("error opening pyInterpreterName.txt: %v", err)
 	}
 	pyInterpreter = string(b)
 
@@ -33,7 +41,7 @@ func main() {
 
 	bot, err = discord.NewBot("./discord/TOKEN.txt", pyInterpreter, pyFilePath)
 	if err != nil {
-		log.Fatalf("Error creating bot: %v\n", err)
+		return fmt.Errorf("error creating bot: %v", err)
 	}
 
 	commands := commands.ExportCommands()
@@ -43,7 +51,7 @@ func main() {
 
 	err = bot.S.Open()
 	if err != nil {
-		log.Fatalf("Error opening bot session: %v\n", err)
+		return fmt.Errorf("error opening bot session: %v", err)
 	}
 	defer bot.S.Close()
 
@@ -54,4 +62,6 @@ func main() {
 	<-stop
 
 	log.Println("Gracefully shutting down...")
+
+	return nil
 }
