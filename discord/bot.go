@@ -62,7 +62,7 @@ type Bot struct {
 
 func (b *Bot) runPyScript() (err error) {
 	cmd := exec.Command(b.pyInterpreter, b.pyCommandsFile)
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = log.Default().Writer()
 
 	err = cmd.Run()
 
