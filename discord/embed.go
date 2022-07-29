@@ -2,7 +2,6 @@ package discord
 
 import dg "github.com/bwmarrin/discordgo"
 
-
 const (
 	embedColor = 0x1F7EAD // color being used in python script so when changing this, change it in python too
 	footerText = "https://discord.gg/ZR2EspdHFQ ● Icons by: icons8.com"

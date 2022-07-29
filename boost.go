@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -13,7 +12,6 @@ import (
 	"github.com/avitar64/Boost-bot/discord/commands"
 )
 
-var config = make(map[string]string)
 var pyInterpreterName, pyFilePath string
 
 func main() {
@@ -27,19 +25,13 @@ func run() (err error) {
 	rand.Seed(time.Now().UnixNano())
 	log.Default().SetOutput(os.Stdout)
 
-	f, err := os.Open("config.json")
+	config, err := discord.LoadConfig()
 	if err != nil {
-		return fmt.Errorf("error opening config.json: %v", err)
-	}
-	defer f.Close()
-
-	err = json.NewDecoder(f).Decode(&config)
-	if err != nil {
-		return fmt.Errorf("error decoding config.json: %v", err)
+		return fmt.Errorf("error loading config: %v", err)
 	}
 
-	pyInterpreterName = config["pyInterpreterName"]
-	pyFilePath = config["pyFilePath"]
+	pyInterpreterName = config["pyInterpreterName"].(string)
+	pyFilePath = config["pyFilePath"].(string)
 
 	var bot *discord.Bot
 
