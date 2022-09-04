@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/avitar64/Boost-bot/discord/data"
+	"github.com/avitar64/Boost-bot/boost/discord/data"
 )
 
 func main() {

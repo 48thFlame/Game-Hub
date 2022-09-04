@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/avitar64/Boost-bot/discord"
-	"github.com/avitar64/Boost-bot/discord/data"
+	"github.com/avitar64/Boost-bot/boost/discord"
+	"github.com/avitar64/Boost-bot/boost/discord/data"
 	"github.com/avitar64/Boost-bot/games"
 	dg "github.com/bwmarrin/discordgo"
 )

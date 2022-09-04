@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/avitar64/Boost-bot/discord"
-	"github.com/avitar64/Boost-bot/discord/data"
+	"github.com/avitar64/Boost-bot/boost/discord"
+	"github.com/avitar64/Boost-bot/boost/discord/data"
 	dg "github.com/bwmarrin/discordgo"
 )
 
