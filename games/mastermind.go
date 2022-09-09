@@ -107,7 +107,6 @@ func getNewRandomColorSet() [4]MasterColor {
 
 func NewMastermindGame() *MastermindGame {
 	return &MastermindGame{
-		// Answer:  [4]MasterColor{Red, Orange, Yellow, Green},
 		Answer:  getNewRandomColorSet(),
 		Guesses: [][4]MasterColor{},
 		results: [][]MasterResult{},
@@ -115,6 +114,7 @@ func NewMastermindGame() *MastermindGame {
 }
 
 type MastermindGame struct {
+	Won     bool             `json:"won"`
 	Answer  [4]MasterColor   `json:"answer"`
 	Guesses [][4]MasterColor `json:"guesses"`
 	results [][]MasterResult
@@ -123,7 +123,6 @@ type MastermindGame struct {
 func (m *MastermindGame) String() (str string) {
 	str += masterHighlighter + "Answer:" + masterHighlighter + "\n"
 	str += strings.Repeat(masterSecretEmoji+" ", 4) + masterBoardSeparator + strings.Repeat(Black.String()+" ", 4) + "\n"
-	// str += m.GetAnswerString("") + "\n"
 
 	var guess [4]MasterColor
 	var result []MasterResult
@@ -164,7 +163,10 @@ func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
 	m.Guesses = append(m.Guesses, guess)
 	m.results = append(m.results, results)
 
-	return reflect.DeepEqual(results, perfectGuessResult)
+	won := reflect.DeepEqual(results, perfectGuessResult)
+	m.Won = won
+
+	return won
 }
 
 // fills results for all already guessed (use when taking game out of json for example)

@@ -1,5 +1,13 @@
+# genreal
 .vscode
-TOKEN.txt
 __pycache__
+
+# boost
+# TODO: make db/ only files not the folders
+TOKEN.txt
 db
 build
+
+# elm_interface
+elm-stuff
+index.html
