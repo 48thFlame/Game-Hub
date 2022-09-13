@@ -109,7 +109,7 @@ func NewMastermindGame() *MastermindGame {
 	return &MastermindGame{
 		Answer:  getNewRandomColorSet(),
 		Guesses: [][4]MasterColor{},
-		results: [][]MasterResult{},
+		Results: [][]MasterResult{},
 	}
 }
 
@@ -117,7 +117,7 @@ type MastermindGame struct {
 	Won     bool             `json:"won"`
 	Answer  [4]MasterColor   `json:"answer"`
 	Guesses [][4]MasterColor `json:"guesses"`
-	results [][]MasterResult
+	Results [][]MasterResult `json:"results"`
 }
 
 func (m *MastermindGame) String() (str string) {
@@ -130,7 +130,7 @@ func (m *MastermindGame) String() (str string) {
 	for i := 0; i < MasterGameLen; i++ {
 		if len(m.Guesses) > i { //if guessed up until now, use the guess, otherwise use a blank/empty guess
 			guess = m.Guesses[i]
-			result = m.results[i]
+			result = m.Results[i]
 		} else {
 			guess = [4]MasterColor{Empty, Empty, Empty, Empty}
 			result = []MasterResult{Blank, Blank, Blank, Blank}
@@ -161,7 +161,7 @@ func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
 	results := getGuessResult(guess, m.Answer)
 
 	m.Guesses = append(m.Guesses, guess)
-	m.results = append(m.results, results)
+	m.Results = append(m.Results, results)
 
 	won := reflect.DeepEqual(results, perfectGuessResult)
 	m.Won = won
@@ -172,7 +172,7 @@ func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
 // fills results for all already guessed (use when taking game out of json for example)
 func (m *MastermindGame) FillResults() {
 	for _, guess := range m.Guesses {
-		m.results = append(m.results, getGuessResult(guess, m.Answer))
+		m.Results = append(m.Results, getGuessResult(guess, m.Answer))
 	}
 }
 
