@@ -1,3 +1,10 @@
+body {
+    margin: 0%;
+    background-color: lightgreen;
+    display: flex;
+    justify-content: center;
+}
+
 .game_section {
-    background-color: lightblue;
+    font-size: x-large;
 }

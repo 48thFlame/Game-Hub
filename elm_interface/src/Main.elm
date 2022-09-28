@@ -4,6 +4,7 @@ import Array exposing (Array)
 import Browser
 import Html
 import Html.Attributes as Attributes
+import Html.Events as Events
 import Http
 import Json.Decode exposing (Decoder, bool, field, int, list, map4)
 
@@ -20,7 +21,7 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Loading, getRawData )
+    ( emptyModel, getRawData )
 
 
 subscriptions : Model -> Sub Msg
@@ -28,14 +29,16 @@ subscriptions _ =
     Sub.none
 
 
+type alias Model =
+    { dataState : DataState
+    , gameData : GameData
+    , currentGuess : ColorSet
+    }
 
--- model
 
-
-type Model
-    = Loading
-    | Failure
-    | Playing GameData
+emptyModel : Model
+emptyModel =
+    { dataState = Loading, gameData = emptyGameData, currentGuess = [] }
 
 
 type alias RawData =
@@ -54,6 +57,21 @@ type alias GameData =
     }
 
 
+emptyGameData : GameData
+emptyGameData =
+    { state = Won
+    , answer = []
+    , guesses = Array.fromList []
+    , results = Array.fromList []
+    }
+
+
+type DataState
+    = Loading
+    | Failure
+    | Success
+
+
 type GameState
     = InGame
     | Won
@@ -68,6 +86,11 @@ type Color
     | Green
     | Blue
     | Purple
+
+
+guessingColors : List Color
+guessingColors =
+    [ Red, Orange, Yellow, Green, Blue, Purple ]
 
 
 type alias ColorSet =
@@ -86,6 +109,8 @@ type alias GameResultsSet =
 
 type Msg
     = GotData (Result Http.Error RawData)
+    | Guess Color
+    | Clear
 
 
 gameLen : Int
@@ -103,15 +128,36 @@ gameUrl =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg _ =
+update msg model =
     case msg of
         GotData result ->
             case result of
                 Ok rawData ->
-                    ( Playing (convertRawDataToGameData rawData), Cmd.none )
+                    ( { emptyModel
+                        | dataState = Success
+                        , gameData = convertRawDataToGameData rawData
+                      }
+                    , Cmd.none
+                    )
 
                 Err _ ->
-                    ( Failure, Cmd.none )
+                    ( { emptyModel | dataState = Failure }, Cmd.none )
+
+        Guess c ->
+            case c of
+                NoColor ->
+                    -- should guess
+                    ( model, Cmd.none )
+
+                _ ->
+                    if List.length model.currentGuess >= 4 then
+                        ( model, Cmd.none )
+
+                    else
+                        ( { model | currentGuess = c :: model.currentGuess }, Cmd.none )
+
+        Clear ->
+            ( { model | currentGuess = [] }, Cmd.none )
 
 
 
@@ -120,29 +166,30 @@ update msg _ =
 
 view : Model -> Html.Html Msg
 view model =
-    case model of
+    case model.dataState of
         Loading ->
             Html.text "loading..."
 
         Failure ->
             Html.text "Failed :("
 
-        Playing game ->
-            generateGameHtml game
+        Success ->
+            generateGameHtml model.gameData model.currentGuess
 
 
-generateGameHtml : GameData -> Html.Html Msg
-generateGameHtml game =
+generateGameHtml : GameData -> ColorSet -> Html.Html Msg
+generateGameHtml game currentGuess =
     let
         generateBoard : Html.Html Msg
         generateBoard =
             Html.div [ Attributes.class "game_board" ] (List.range 0 (gameLen - 1) |> List.map (gameRow game))
 
-        generateGuessingButtons : Html.Html Msg
-        generateGuessingButtons =
-            Html.div [ Attributes.class "game_guessing_buttons" ] [ Html.button [] [ Html.text "Press me!!!!" ] ]
+        generateGameButtons : Html.Html Msg
+        generateGameButtons =
+            Html.div [ Attributes.class "game_buttons" ]
+                (List.concat [ List.map gameGuessingButton guessingColors, [ Html.br [] [] ], gameControlButtons ])
     in
-    Html.div [ Attributes.class "game_section" ] [ generateBoard, generateGuessingButtons ]
+    Html.div [ Attributes.class "game_section" ] [ generateBoard, generateCurrentGuess currentGuess, generateGameButtons ]
 
 
 gameRow : GameData -> Int -> Html.Html Msg
@@ -166,9 +213,13 @@ gameRow game i =
                 Nothing ->
                     List.repeat 4 NoGameResult
 
+        guessGameResultSep : String
+        guessGameResultSep =
+            " ------ "
+
         displayRound : Html.Html Msg
         displayRound =
-            Html.p []
+            Html.div []
                 [ Html.span [ Attributes.class "game_row_round_number" ]
                     [ Html.text ("Round " ++ String.fromInt (i + 1) ++ ":")
                     ]
@@ -180,7 +231,7 @@ gameRow game i =
                             |> List.map colorToString
                             |> String.join ""
                          )
-                            ++ " - - "
+                            ++ guessGameResultSep
                             ++ (Array.get i game.results
                                     |> getGameResultSetFromMaybe
                                     |> List.map gameResultToString
@@ -191,6 +242,30 @@ gameRow game i =
                 ]
     in
     Html.div [ Attributes.class "game_board_row" ] [ displayRound ]
+
+
+generateCurrentGuess : ColorSet -> Html.Html Msg
+generateCurrentGuess cs =
+    let
+        make4Long : ColorSet
+        make4Long =
+            List.append (List.reverse cs) (List.repeat (4 - List.length cs) NoColor)
+    in
+    Html.div [ Attributes.class "game_current_guess" ]
+        [ Html.text ("Current guess: " ++ (make4Long |> List.map colorToString |> String.join ""))
+        ]
+
+
+gameGuessingButton : Color -> Html.Html Msg
+gameGuessingButton c =
+    Html.button [ Attributes.class "game_color_button", Events.onClick (Guess c) ] [ Html.text (colorToString c) ]
+
+
+gameControlButtons : List (Html.Html Msg)
+gameControlButtons =
+    [ Html.button [ Attributes.class "game_clear_button", Events.onClick Clear ] [ Html.text "Clear 🗙" ]
+    , Html.button [ Attributes.class "game_guess_button", Events.onClick (Guess NoColor) ] [ Html.text "Guess ➔" ]
+    ]
 
 
 colorToString : Color -> String
