@@ -7,6 +7,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Json.Decode exposing (Decoder, bool, field, int, list, map4)
+import Json.Encode as Encode
 
 
 main : Program () Model Msg
@@ -59,7 +60,7 @@ type alias GameData =
 
 emptyGameData : GameData
 emptyGameData =
-    { state = Won
+    { state = InGame
     , answer = []
     , guesses = Array.fromList []
     , results = Array.fromList []
@@ -86,11 +87,6 @@ type Color
     | Green
     | Blue
     | Purple
-
-
-guessingColors : List Color
-guessingColors =
-    [ Red, Orange, Yellow, Green, Blue, Purple ]
 
 
 type alias ColorSet =
@@ -182,90 +178,92 @@ generateGameHtml game currentGuess =
     let
         generateBoard : Html.Html Msg
         generateBoard =
-            Html.div [ Attributes.class "game_board" ] (List.range 0 (gameLen - 1) |> List.map (gameRow game))
+            let
+                gameRow : Int -> Html.Html Msg
+                gameRow i =
+                    let
+                        getColorSetFromMaybe : Maybe ColorSet -> ColorSet
+                        getColorSetFromMaybe mcs =
+                            case mcs of
+                                Just cs ->
+                                    cs
+
+                                Nothing ->
+                                    List.repeat 4 NoColor
+
+                        getGameResultSetFromMaybe : Maybe GameResultsSet -> GameResultsSet
+                        getGameResultSetFromMaybe mgrs =
+                            case mgrs of
+                                Just grs ->
+                                    grs
+
+                                Nothing ->
+                                    List.repeat 4 NoGameResult
+
+                        guessGameResultSep : String
+                        guessGameResultSep =
+                            " ------ "
+
+                        displayRound : Html.Html Msg
+                        displayRound =
+                            Html.div []
+                                [ Html.span [ Attributes.class "game_row_round_number" ]
+                                    [ Html.text ("Round " ++ String.fromInt (i + 1) ++ ":")
+                                    ]
+                                , Html.br [] []
+                                , Html.span [ Attributes.class "game_row_content" ]
+                                    [ Html.text
+                                        ((Array.get i game.guesses
+                                            |> getColorSetFromMaybe
+                                            |> List.map colorToString
+                                            |> String.join ""
+                                         )
+                                            ++ guessGameResultSep
+                                            ++ (Array.get i game.results
+                                                    |> getGameResultSetFromMaybe
+                                                    |> List.map gameResultToString
+                                                    |> String.join ""
+                                               )
+                                        )
+                                    ]
+                                ]
+                    in
+                    Html.div [ Attributes.class "game_board_row" ] [ displayRound ]
+            in
+            Html.div [ Attributes.class "game_board" ] (List.range 0 (gameLen - 1) |> List.map gameRow)
+
+        generateCurrentGuess : ColorSet -> Html.Html Msg
+        generateCurrentGuess cs =
+            let
+                make4Long : ColorSet
+                make4Long =
+                    List.append (List.reverse cs) (List.repeat (4 - List.length cs) NoColor)
+            in
+            Html.div [ Attributes.class "game_current_guess" ]
+                [ Html.text ("Current guess: " ++ (make4Long |> List.map colorToString |> String.join ""))
+                ]
 
         generateGameButtons : Html.Html Msg
         generateGameButtons =
+            let
+                gameGuessingButton : Color -> Html.Html Msg
+                gameGuessingButton c =
+                    Html.button [ Attributes.class "game_color_button", Events.onClick (Guess c) ] [ Html.text (colorToString c) ]
+
+                guessingColors : List Color
+                guessingColors =
+                    [ Red, Orange, Yellow, Green, Blue, Purple ]
+
+                gameControlButtons : List (Html.Html Msg)
+                gameControlButtons =
+                    [ Html.button [ Attributes.class "game_clear_button", Events.onClick Clear ] [ Html.text "Clear 🗙" ]
+                    , Html.button [ Attributes.class "game_guess_button", Events.onClick (Guess NoColor) ] [ Html.text "Guess ➔" ]
+                    ]
+            in
             Html.div [ Attributes.class "game_buttons" ]
                 (List.concat [ List.map gameGuessingButton guessingColors, [ Html.br [] [] ], gameControlButtons ])
     in
     Html.div [ Attributes.class "game_section" ] [ generateBoard, generateCurrentGuess currentGuess, generateGameButtons ]
-
-
-gameRow : GameData -> Int -> Html.Html Msg
-gameRow game i =
-    let
-        getColorSetFromMaybe : Maybe ColorSet -> ColorSet
-        getColorSetFromMaybe mcs =
-            case mcs of
-                Just cs ->
-                    cs
-
-                Nothing ->
-                    List.repeat 4 NoColor
-
-        getGameResultSetFromMaybe : Maybe GameResultsSet -> GameResultsSet
-        getGameResultSetFromMaybe mgrs =
-            case mgrs of
-                Just grs ->
-                    grs
-
-                Nothing ->
-                    List.repeat 4 NoGameResult
-
-        guessGameResultSep : String
-        guessGameResultSep =
-            " ------ "
-
-        displayRound : Html.Html Msg
-        displayRound =
-            Html.div []
-                [ Html.span [ Attributes.class "game_row_round_number" ]
-                    [ Html.text ("Round " ++ String.fromInt (i + 1) ++ ":")
-                    ]
-                , Html.br [] []
-                , Html.span [ Attributes.class "game_row_content" ]
-                    [ Html.text
-                        ((Array.get i game.guesses
-                            |> getColorSetFromMaybe
-                            |> List.map colorToString
-                            |> String.join ""
-                         )
-                            ++ guessGameResultSep
-                            ++ (Array.get i game.results
-                                    |> getGameResultSetFromMaybe
-                                    |> List.map gameResultToString
-                                    |> String.join ""
-                               )
-                        )
-                    ]
-                ]
-    in
-    Html.div [ Attributes.class "game_board_row" ] [ displayRound ]
-
-
-generateCurrentGuess : ColorSet -> Html.Html Msg
-generateCurrentGuess cs =
-    let
-        make4Long : ColorSet
-        make4Long =
-            List.append (List.reverse cs) (List.repeat (4 - List.length cs) NoColor)
-    in
-    Html.div [ Attributes.class "game_current_guess" ]
-        [ Html.text ("Current guess: " ++ (make4Long |> List.map colorToString |> String.join ""))
-        ]
-
-
-gameGuessingButton : Color -> Html.Html Msg
-gameGuessingButton c =
-    Html.button [ Attributes.class "game_color_button", Events.onClick (Guess c) ] [ Html.text (colorToString c) ]
-
-
-gameControlButtons : List (Html.Html Msg)
-gameControlButtons =
-    [ Html.button [ Attributes.class "game_clear_button", Events.onClick Clear ] [ Html.text "Clear 🗙" ]
-    , Html.button [ Attributes.class "game_guess_button", Events.onClick (Guess NoColor) ] [ Html.text "Guess ➔" ]
-    ]
 
 
 colorToString : Color -> String
@@ -308,89 +306,161 @@ gameResultToString gr =
 
 
 
--- dataFetch
+-- data
 
 
 getRawData : Cmd Msg
 getRawData =
-    Http.get
+    let
+        rawDataDecoder : Decoder RawData
+        rawDataDecoder =
+            map4 RawData
+                (field "won" bool)
+                (field "answer" (list int))
+                (field "guesses" (list (list int)))
+                (field "results" (list (list int)))
+    in
+    Http.post
         { url = gameUrl
         , expect = Http.expectJson GotData rawDataDecoder
+        , body = Http.jsonBody (getJsonValueFromGameData emptyGameData)
         }
-
-
-rawDataDecoder : Decoder RawData
-rawDataDecoder =
-    map4 RawData
-        (field "won" bool)
-        (field "answer" (list int))
-        (field "guesses" (list (list int)))
-        (field "results" (list (list int)))
 
 
 convertRawDataToGameData : RawData -> GameData
 convertRawDataToGameData raw =
     let
+        getGameState : GameState
+        getGameState =
+            if raw.won then
+                Won
+
+            else if not raw.won && List.length raw.guesses < gameLen then
+                InGame
+
+            else
+                Lost
+
+        getColorFromInt : Int -> Color
+        getColorFromInt i =
+            case i of
+                1 ->
+                    Red
+
+                2 ->
+                    Orange
+
+                3 ->
+                    Yellow
+
+                4 ->
+                    Green
+
+                5 ->
+                    Blue
+
+                6 ->
+                    Purple
+
+                _ ->
+                    NoColor
+
         getColorSetFromInts : List Int -> ColorSet
         getColorSetFromInts l =
             List.map getColorFromInt l
+
+        getGameResultFromInt : Int -> GameResult
+        getGameResultFromInt i =
+            case i of
+                1 ->
+                    White
+
+                2 ->
+                    Black
+
+                _ ->
+                    NoGameResult
 
         getResultSetFromInts : List Int -> GameResultsSet
         getResultSetFromInts l =
             List.map getGameResultFromInt l
     in
-    { state = getGameState raw
+    { state = getGameState
     , answer = getColorSetFromInts raw.answer
     , guesses = List.map getColorSetFromInts raw.guesses |> Array.fromList
     , results = List.map getResultSetFromInts raw.results |> Array.fromList
     }
 
 
-getGameState : RawData -> GameState
-getGameState raw =
-    if raw.won then
-        Won
+getJsonValueFromGameData : GameData -> Encode.Value
+getJsonValueFromGameData game =
+    let
+        getBoolFromGameState : GameState -> Bool
+        getBoolFromGameState gs =
+            case gs of
+                Won ->
+                    True
 
-    else if not raw.won && List.length raw.guesses < gameLen then
-        InGame
+                _ ->
+                    False
 
-    else
-        Lost
+        getEncodeValueFromColor : Color -> Encode.Value
+        getEncodeValueFromColor c =
+            let
+                getIntFromColor : Int
+                getIntFromColor =
+                    case c of
+                        Red ->
+                            1
 
+                        Orange ->
+                            2
 
-getColorFromInt : Int -> Color
-getColorFromInt i =
-    case i of
-        1 ->
-            Red
+                        Yellow ->
+                            3
 
-        2 ->
-            Orange
+                        Green ->
+                            4
 
-        3 ->
-            Yellow
+                        Blue ->
+                            5
 
-        4 ->
-            Green
+                        Purple ->
+                            6
 
-        5 ->
-            Blue
+                        NoColor ->
+                            -1
+            in
+            getIntFromColor |> Encode.int
 
-        6 ->
-            Purple
+        getGuessesValueFromColorSet : ColorSet -> Encode.Value
+        getGuessesValueFromColorSet cs =
+            Encode.list getEncodeValueFromColor cs
 
-        _ ->
-            NoColor
+        getResultValueFromGameResultSet : GameResultsSet -> Encode.Value
+        getResultValueFromGameResultSet grs =
+            let
+                getIntFromGameResult : GameResult -> Int
+                getIntFromGameResult res =
+                    case res of
+                        White ->
+                            1
 
+                        Black ->
+                            2
 
-getGameResultFromInt : Int -> GameResult
-getGameResultFromInt i =
-    case i of
-        1 ->
-            White
+                        NoGameResult ->
+                            -1
 
-        2 ->
-            Black
-
-        _ ->
-            NoGameResult
+                getEncodeValueFromGameResult : GameResult -> Encode.Value
+                getEncodeValueFromGameResult res =
+                    getIntFromGameResult res |> Encode.int
+            in
+            Encode.list getEncodeValueFromGameResult grs
+    in
+    Encode.object
+        [ ( "won", Encode.bool (getBoolFromGameState game.state) )
+        , ( "answer", Encode.list getEncodeValueFromColor game.answer )
+        , ( "guesses", Encode.array getGuessesValueFromColorSet game.guesses )
+        , ( "results", Encode.array getResultValueFromGameResultSet game.results )
+        ]
