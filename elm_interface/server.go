@@ -9,10 +9,8 @@ import (
 	"github.com/avitar64/Boost-bot/games"
 )
 
-func newMasterJson() (string, error) {
-	masterGame := games.NewMastermindGame()
-
-	b, err := json.Marshal(masterGame)
+func marshalMastermindGHame(game *games.MastermindGame) (string, error) {
+	b, err := json.Marshal(game)
 	if err != nil {
 		return "", err
 	}
@@ -20,21 +18,63 @@ func newMasterJson() (string, error) {
 	return string(b), nil
 }
 
-func handleMastermindGET(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	// fmt.Println(r.Body)
-	// q := r.URL.Query()
-	jsonData, err := newMasterJson()
+type MastermindGuessPOSTRequest struct {
+	Game  *games.MastermindGame `json:"game"`
+	Guess [4]games.MasterColor  `json:"guess"`
+}
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("!! ERROR: %v\n", err)
+func handlePOST(w http.ResponseWriter, r *http.Request) {
+	if r.Body == http.NoBody {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	var guessStruct *MastermindGuessPOSTRequest
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(guessStruct)
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	}
+
+	guessStruct.Game.Guess(guessStruct.Guess)
+
+	jsonData, err := marshalMastermindGHame(guessStruct.Game)
+	if err != nil {
+		log.Println("!! ERROR: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	fmt.Fprint(w, jsonData)
+}
+
+func handleMastermindRequests(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+
+	if r.Method == "GET" {
+		log.Println("get")
+		handleGET(w, r)
+	} else if r.Method == "POST" {
+		log.Println("post")
+		handlePOST(w, r)
+	}
+}
+
+func handleGET(w http.ResponseWriter, r *http.Request) {
+	game := games.NewMastermindGame()
+
+	jsonData, err := marshalMastermindGHame(game)
+	if err != nil {
+		log.Println("!! ERROR: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
 	fmt.Fprint(w, jsonData)
 }
 
 func main() {
-	http.HandleFunc("/mastermind", handleMastermindGET)
+	http.HandleFunc("/mastermind", handleMastermindRequests)
 	http.Handle("/", http.FileServer(http.Dir(".")))
 
 	log.Println("Running...")
