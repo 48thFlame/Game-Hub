@@ -29,8 +29,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var guessStruct *MastermindGuessPOSTRequest
-
+	var guessStruct = &MastermindGuessPOSTRequest{}
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(guessStruct)
 	if err != nil {
