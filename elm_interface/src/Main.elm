@@ -22,7 +22,7 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( emptyModel, sendPOST gameUrl )
+    ( emptyModel, sendRequest gameUrl Nothing )
 
 
 subscriptions : Model -> Sub Msg
@@ -129,21 +129,26 @@ update msg model =
         GotData result ->
             case result of
                 Ok rawData ->
-                    ( { emptyModel
+                    ( { model
                         | dataState = Success
                         , gameData = convertRawDataToGameData rawData
+                        , currentGuess = []
                       }
                     , Cmd.none
                     )
 
                 Err _ ->
-                    ( { emptyModel | dataState = Failure }, Cmd.none )
+                    ( { model | dataState = Failure }, Cmd.none )
 
         GuessBtnClick c ->
             case c of
                 NoColor ->
                     -- should guess
-                    ( model, Cmd.none )
+                    ( { model | dataState = Loading }
+                    , sendRequest
+                        gameUrl
+                        (Just (getBodyForGuessRequest model.gameData model.currentGuess))
+                    )
 
                 _ ->
                     if List.length model.currentGuess >= 4 then
@@ -170,7 +175,38 @@ view model =
             Html.text "Failed :("
 
         Success ->
-            generateGameHtml model.gameData model.currentGuess
+            let
+                genGameState : Html.Html Msg
+                genGameState =
+                    case model.gameData.state of
+                        Lost ->
+                            Html.text "lost"
+
+                        Won ->
+                            Html.text "won"
+
+                        InGame ->
+                            Html.text "playing"
+            in
+            Html.div
+                [ Attributes.class "app" ]
+                [ Html.h1 [ Attributes.class "mastermind_title" ] [ Html.text "Mastermind" ]
+                , generateGameHtml model.gameData model.currentGuess
+                , genGameState
+                , Html.hr [ Attributes.class "credits_divider" ] []
+                , Html.h2 [ Attributes.class "credits_title" ] [ Html.text "Credits" ]
+                , Html.p
+                    [ Attributes.class "credits" ]
+                    [ Html.text "Mastermind game by "
+                    , Html.a
+                        [ Attributes.href "https://github.com/avitar64/", Attributes.class "credits_link" ]
+                        [ Html.text "avitar64" ]
+                    , Html.text " "
+                    , Html.a
+                        [ Attributes.href "https://github.com/avitar64/Game-hub", Attributes.class "credits_link" ]
+                        [ Html.text "Repo" ]
+                    ]
+                ]
 
 
 generateGameHtml : GameData -> ColorSet -> Html.Html Msg
@@ -326,10 +362,12 @@ gameResultToString : GameResult -> String
 gameResultToString gr =
     case gr of
         White ->
-            "❎"
+            -- "❎"
+            "⚪"
 
         Black ->
-            "✅"
+            -- "✅"
+            "⚫"
 
         NoGameResult ->
             "➖"
@@ -339,8 +377,10 @@ gameResultToString gr =
 -- data
 
 
-sendPOST : String -> Cmd Msg
-sendPOST url =
+{-| If has body will POST otherwise GET
+-}
+sendRequest : String -> Maybe Http.Body -> Cmd Msg
+sendRequest url mBody =
     let
         rawDataDecoder : Decode.Decoder RawGameData
         rawDataDecoder =
@@ -349,12 +389,24 @@ sendPOST url =
                 (Decode.field "answer" (Decode.list Decode.int))
                 (Decode.field "guesses" (Decode.list (Decode.list Decode.int)))
                 (Decode.field "results" (Decode.list (Decode.list Decode.int)))
+
+        expect : Http.Expect Msg
+        expect =
+            Http.expectJson GotData rawDataDecoder
     in
-    Http.post
-        { url = url
-        , expect = Http.expectJson GotData rawDataDecoder
-        , body = Http.jsonBody (getJsonValueFromGameData emptyGameData)
-        }
+    case mBody of
+        Just body ->
+            Http.post
+                { url = url
+                , expect = expect
+                , body = body
+                }
+
+        Nothing ->
+            Http.get
+                { url = url
+                , expect = expect
+                }
 
 
 convertRawDataToGameData : RawGameData -> GameData
@@ -422,8 +474,8 @@ convertRawDataToGameData raw =
     }
 
 
-getJsonValueFromGameData : GameData -> Encode.Value
-getJsonValueFromGameData game =
+getBodyForGuessRequest : GameData -> ColorSet -> Http.Body
+getBodyForGuessRequest game guess =
     let
         getBoolFromGameState : GameState -> Bool
         getBoolFromGameState gs =
@@ -485,10 +537,21 @@ getJsonValueFromGameData game =
         getResultValueFromGameResultSet : GameResultsSet -> Encode.Value
         getResultValueFromGameResultSet grs =
             Encode.list getEncodeValueFromGameResult grs
+
+        getJsonValueFromGameData : Encode.Value
+        getJsonValueFromGameData =
+            Encode.object
+                [ ( "won", Encode.bool (getBoolFromGameState game.state) )
+                , ( "answer", Encode.list getEncodeValueFromColor game.answer )
+                , ( "guesses", Encode.array getGuessesValueFromColorSet game.guesses )
+                , ( "results", Encode.array getResultValueFromGameResultSet game.results )
+                ]
+
+        getGuessJsonData : Encode.Value
+        getGuessJsonData =
+            Encode.object
+                [ ( "game", getJsonValueFromGameData )
+                , ( "guess", Encode.list getEncodeValueFromColor (List.reverse guess) )
+                ]
     in
-    Encode.object
-        [ ( "won", Encode.bool (getBoolFromGameState game.state) )
-        , ( "answer", Encode.list getEncodeValueFromColor game.answer )
-        , ( "guesses", Encode.array getGuessesValueFromColorSet game.guesses )
-        , ( "results", Encode.array getResultValueFromGameResultSet game.results )
-        ]
+    Http.jsonBody getGuessJsonData
