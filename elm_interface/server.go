@@ -50,12 +50,9 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 
 func handleMastermindRequests(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-
 	if r.Method == "GET" {
-		log.Println("get")
 		handleGET(w, r)
 	} else if r.Method == "POST" {
-		log.Println("post")
 		handlePOST(w, r)
 	}
 }

@@ -174,14 +174,9 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    case model.dataState of
-        Loading ->
-            Html.text "loading..."
-
-        Failure ->
-            Html.text "Failed :("
-
-        Success ->
+    let
+        genAppHtml : Html.Html Msg
+        genAppHtml =
             Html.div
                 [ Attributes.class "app" ]
                 [ Html.h1 [ Attributes.class "mastermind_title" ] [ Html.text "Mastermind" ]
@@ -200,6 +195,16 @@ view model =
                         [ Html.text "Repo" ]
                     ]
                 ]
+    in
+    case model.dataState of
+        Failure ->
+            Html.text "Something went wrong :( try reloading page."
+
+        Loading ->
+            genAppHtml
+
+        Success ->
+            genAppHtml
 
 
 generateGameHtml : GameData -> ColorSet -> Html.Html Msg
