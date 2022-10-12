@@ -107,6 +107,7 @@ type Msg
     = GotData (Result Http.Error RawGameData)
     | GuessBtnClick Color
     | ClearBtnClick
+    | NewGame
 
 
 gameLen : Int
@@ -143,12 +144,15 @@ update msg model =
         GuessBtnClick c ->
             case c of
                 NoColor ->
-                    -- should guess
-                    ( { model | dataState = Loading }
-                    , sendRequest
-                        gameUrl
-                        (Just (getBodyForGuessRequest model.gameData model.currentGuess))
-                    )
+                    if model.gameData.state == InGame && List.length model.currentGuess >= 4 then
+                        ( { model | dataState = Loading }
+                        , sendRequest
+                            gameUrl
+                            (Just (getBodyForGuessRequest model.gameData model.currentGuess))
+                        )
+
+                    else
+                        ( model, Cmd.none )
 
                 _ ->
                     if List.length model.currentGuess >= 4 then
@@ -159,6 +163,9 @@ update msg model =
 
         ClearBtnClick ->
             ( { model | currentGuess = [] }, Cmd.none )
+
+        NewGame ->
+            init ()
 
 
 
@@ -175,24 +182,10 @@ view model =
             Html.text "Failed :("
 
         Success ->
-            let
-                genGameState : Html.Html Msg
-                genGameState =
-                    case model.gameData.state of
-                        Lost ->
-                            Html.text "lost"
-
-                        Won ->
-                            Html.text "won"
-
-                        InGame ->
-                            Html.text "playing"
-            in
             Html.div
                 [ Attributes.class "app" ]
                 [ Html.h1 [ Attributes.class "mastermind_title" ] [ Html.text "Mastermind" ]
                 , generateGameHtml model.gameData model.currentGuess
-                , genGameState
                 , Html.hr [ Attributes.class "credits_divider" ] []
                 , Html.h2 [ Attributes.class "credits_title" ] [ Html.text "Credits" ]
                 , Html.p
@@ -212,6 +205,10 @@ view model =
 generateGameHtml : GameData -> ColorSet -> Html.Html Msg
 generateGameHtml game currentGuess =
     let
+        playing : Bool
+        playing =
+            game.state == InGame
+
         generateBoard : Html.Html Msg
         generateBoard =
             let
@@ -280,13 +277,29 @@ generateGameHtml game currentGuess =
             in
             Html.div
                 [ Attributes.class "game_current_guess" ]
-                [ Html.text
-                    ("Current guess: "
-                        ++ (make4Long
-                                |> List.map colorToString
-                                |> String.join ""
-                           )
-                    )
+                [ if playing then
+                    Html.text
+                        ("Current guess: "
+                            ++ (make4Long
+                                    |> List.map colorToString
+                                    |> String.join ""
+                               )
+                        )
+
+                  else
+                    case game.state of
+                        Won ->
+                            Html.h3
+                                [ Attributes.class "game_result" ]
+                                [ Html.text "You Won! :)" ]
+
+                        Lost ->
+                            Html.h3
+                                [ Attributes.class "game_result" ]
+                                [ Html.text "You lost :(" ]
+
+                        _ ->
+                            Html.text ""
                 ]
 
         generateGameButtons : Html.Html Msg
@@ -317,14 +330,24 @@ generateGameHtml game currentGuess =
                         ]
                         [ Html.text "Guess ➔" ]
                     ]
+
+                newGameButton : Html.Html Msg
+                newGameButton =
+                    Html.button [ Attributes.class "newGame_button", Events.onClick NewGame ] [ Html.text "New game 🗘" ]
             in
             Html.div
                 [ Attributes.class "game_buttons" ]
-                (List.concat
-                    [ List.map gameGuessingButton guessingColors
-                    , [ Html.br [] [] ]
-                    , gameControlButtons
-                    ]
+                (if playing then
+                    List.concat
+                        [ List.map gameGuessingButton guessingColors
+                        , List.singleton (Html.br [] [])
+                        , gameControlButtons
+                        , List.singleton
+                            newGameButton
+                        ]
+
+                 else
+                    List.singleton newGameButton
                 )
     in
     Html.div
