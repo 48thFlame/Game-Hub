@@ -107,23 +107,22 @@ func getNewRandomColorSet() [4]MasterColor {
 
 func NewMastermindGame() *MastermindGame {
 	return &MastermindGame{
-		// Answer:  [4]MasterColor{Red, Orange, Yellow, Green},
 		Answer:  getNewRandomColorSet(),
 		Guesses: [][4]MasterColor{},
-		results: [][]MasterResult{},
+		Results: [][]MasterResult{},
 	}
 }
 
 type MastermindGame struct {
+	Won     bool             `json:"won"`
 	Answer  [4]MasterColor   `json:"answer"`
 	Guesses [][4]MasterColor `json:"guesses"`
-	results [][]MasterResult
+	Results [][]MasterResult `json:"results"`
 }
 
 func (m *MastermindGame) String() (str string) {
 	str += masterHighlighter + "Answer:" + masterHighlighter + "\n"
 	str += strings.Repeat(masterSecretEmoji+" ", 4) + masterBoardSeparator + strings.Repeat(Black.String()+" ", 4) + "\n"
-	// str += m.GetAnswerString("") + "\n"
 
 	var guess [4]MasterColor
 	var result []MasterResult
@@ -131,7 +130,7 @@ func (m *MastermindGame) String() (str string) {
 	for i := 0; i < MasterGameLen; i++ {
 		if len(m.Guesses) > i { //if guessed up until now, use the guess, otherwise use a blank/empty guess
 			guess = m.Guesses[i]
-			result = m.results[i]
+			result = m.Results[i]
 		} else {
 			guess = [4]MasterColor{Empty, Empty, Empty, Empty}
 			result = []MasterResult{Blank, Blank, Blank, Blank}
@@ -162,15 +161,18 @@ func (m *MastermindGame) Guess(guess [4]MasterColor) bool {
 	results := getGuessResult(guess, m.Answer)
 
 	m.Guesses = append(m.Guesses, guess)
-	m.results = append(m.results, results)
+	m.Results = append(m.Results, results)
 
-	return reflect.DeepEqual(results, perfectGuessResult)
+	won := reflect.DeepEqual(results, perfectGuessResult)
+	m.Won = won
+
+	return won
 }
 
 // fills results for all already guessed (use when taking game out of json for example)
 func (m *MastermindGame) FillResults() {
 	for _, guess := range m.Guesses {
-		m.results = append(m.results, getGuessResult(guess, m.Answer))
+		m.Results = append(m.Results, getGuessResult(guess, m.Answer))
 	}
 }
 

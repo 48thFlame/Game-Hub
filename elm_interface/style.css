@@ -1,0 +1,10 @@
+body {
+    margin: 0%;
+    background-color: lightsteelblue;
+    display: flex;
+    justify-content: center;
+}
+
+.game_section {
+    font-size: x-large;
+}
