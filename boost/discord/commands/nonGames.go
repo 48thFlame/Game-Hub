@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/avitar64/Boost-bot/boost/discord"
-	"github.com/avitar64/Boost-bot/boost/discord/data"
+	"github.com/48thFlame/Game-hub/boost/discord"
+	"github.com/48thFlame/Game-hub/boost/discord/data"
 	dg "github.com/bwmarrin/discordgo"
 )
 
@@ -239,7 +239,8 @@ func Poll(s *dg.Session, i *dg.InteractionCreate) {
 	s.MessageReactionAdd(msg.ChannelID, msg.ID, pollReactionPositive)
 	s.MessageReactionAdd(msg.ChannelID, msg.ID, pollReactionNegative)
 
-	err = discord.InteractionEdit(s, i.Interaction, &dg.WebhookEdit{Content: "Done!"})
+	content := "Done!"
+	err = discord.InteractionEdit(s, i.Interaction, &dg.WebhookEdit{Content: &content})
 	if err != nil {
 		discord.Error(fmt.Errorf("error editing poll interaction: %v", err), s, i.Interaction)
 		return
@@ -299,11 +300,12 @@ func Feedback(s *dg.Session, i *dg.InteractionCreate) {
 		return
 	}
 
+	content := "Thank you for your feedback! 😎\n\u200b\n||**WARNING:** DO NOT SPAM! spamming will lead to a ban from using the feedback command!||"
 	err = discord.InteractionEdit(
 		s,
 		i.Interaction,
 		&dg.WebhookEdit{
-			Content: "Thank you for your feedback! 😎\n\u200b\n||**WARNING:** DO NOT SPAM! spamming will lead to a ban from using the feedback command!||",
+			Content: &content,
 		},
 	)
 	if err != nil {

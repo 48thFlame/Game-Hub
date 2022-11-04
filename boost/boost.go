@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/avitar64/Boost-bot/boost/discord"
-	"github.com/avitar64/Boost-bot/boost/discord/commands"
+	"github.com/48thFlame/Game-hub/boost/discord"
+	"github.com/48thFlame/Game-hub/boost/discord/commands"
 )
 
 var pyInterpreterName, pyFilePath string

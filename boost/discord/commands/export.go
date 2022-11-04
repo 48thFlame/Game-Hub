@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/avitar64/Boost-bot/boost/discord"
+	"github.com/48thFlame/Game-hub/boost/discord"
 	dg "github.com/bwmarrin/discordgo"
 )
 

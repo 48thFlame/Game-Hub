@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/avitar64/Boost-bot/games"
+	"github.com/48thFlame/Game-hub/games"
 )
 
 const (

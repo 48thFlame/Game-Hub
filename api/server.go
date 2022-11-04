@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/avitar64/Boost-bot/games"
+	"github.com/48thFlame/Game-hub/games"
 )
 
 func marshalMastermindGHame(game *games.MastermindGame) (string, error) {

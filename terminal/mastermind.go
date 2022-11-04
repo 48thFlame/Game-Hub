@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/avitar64/Boost-bot/games"
+	"github.com/48thFlame/Game-hub/games"
 )
 
 const (

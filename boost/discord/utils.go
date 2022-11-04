@@ -13,7 +13,7 @@ const (
 
 func Error(err error, s *dg.Session, i *dg.Interaction) {
 	log.Printf("!! Error: %v\n", err)
-	InteractionRespond(s, i, InstaMessage, &dg.InteractionResponseData{Content: "An error has occurred 😵‍💫!", Flags: uint64(dg.MessageFlagsEphemeral)})
+	InteractionRespond(s, i, InstaMessage, &dg.InteractionResponseData{Content: "An error has occurred 😵‍💫!", Flags: dg.MessageFlagsEphemeral})
 }
 
 func InteractionRespond(s *dg.Session, i *dg.Interaction, t dg.InteractionResponseType, d *dg.InteractionResponseData) error {

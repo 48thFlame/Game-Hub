@@ -187,11 +187,11 @@ view model =
                     [ Attributes.class "credits" ]
                     [ Html.text "Mastermind game by "
                     , Html.a
-                        [ Attributes.href "https://github.com/avitar64/", Attributes.class "credits_link" ]
-                        [ Html.text "avitar64" ]
+                        [ Attributes.href "https://github.com/48thFlame/", Attributes.class "credits_link" ]
+                        [ Html.text "48thFlame" ]
                     , Html.text " "
                     , Html.a
-                        [ Attributes.href "https://github.com/avitar64/Game-hub", Attributes.class "credits_link" ]
+                        [ Attributes.href "https://github.com/48thFlame/Game-hub", Attributes.class "credits_link" ]
                         [ Html.text "Repo" ]
                     ]
                 ]
