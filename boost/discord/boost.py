@@ -12,13 +12,15 @@ with open("./discord/TOKEN.txt", "r") as f:
 bot = lightbulb.BotApp(
     TOKEN,
     # help_class=HelpClass,
-    default_enabled_guilds=(755001834418208840,),
+    # default_enabled_guilds=(755001834418208840,),
     banner=None
 )
 
 
 @bot.listen(hikari.StartingEvent)
 async def load_commands(event):
+    # bot.purge_application_commands(755001834418208840, global_commands=True)
+    # return
     loadNonGamesCommands(bot)
     load_calculator(bot)
     load_mastermind_commands(bot)

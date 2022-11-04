@@ -4,7 +4,7 @@ import lightbulb
 
 def loadNonGamesCommands(bot: lightbulb.BotApp):
     @bot.command
-    @lightbulb.command("ping", "ping.")
+    @lightbulb.command("ping", "Shows bots ping.")
     @lightbulb.implements(lightbulb.commands.SlashCommand)
     async def ping_command(ctx):
         pass
@@ -57,7 +57,6 @@ def loadNonGamesCommands(bot: lightbulb.BotApp):
     async def feedback_command(ctx):
         pass
 
-    
     @bot.command
     @lightbulb.command("statistics", "Sends your game statistics.")
     @lightbulb.implements(lightbulb.commands.SlashCommand)
