@@ -1,7 +1,3 @@
-# Game-hub
+# Game-Hub
 
-This is a game project where the backend of games is in the `games` folder, and different frontend's (interfaces), are in different places.
-
-- Inside `/boost` there is a discord-bot Boost [check out boost-bot](https://bit.ly/3aykHRP).
-- Inside `/elm_interface` there is a website using Elm [check out the website](https://bit.ly/3Vu68Bo).
-- Inside `/terminal` there is a command-line tool.
+An api for some games, for example api for a mastermind game [here](http://35.238.73.100:8080/mastermind), used in this my website [github-code](https://github.com/48thFlame/Mastermind-website) [website](https://bit.ly/3Vu68Bo)
