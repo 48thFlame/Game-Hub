@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -6,9 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/48thFlame/Game-hub/games"
+	"github.com/48thFlame/Game-Hub/games"
 )
-
 func marshalMastermindGHame(game *games.MastermindGame) (string, error) {
 	b, err := json.Marshal(game)
 	if err != nil {
@@ -61,10 +60,11 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleMastermindRequests(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:1234")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	w.Header().Add("Content-Type", "application/json")
+
 	if r.Method == "GET" {
 		handleGET(w, r)
 	} else if r.Method == "POST" {
@@ -72,10 +72,10 @@ func handleMastermindRequests(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func RunApi(port string) error {
 	http.HandleFunc("/mastermind", handleMastermindRequests)
 
-	log.Println("Running...")
+	log.Printf("Running API on port \"%v\"\n", port)
 
-	http.ListenAndServe(":8080", nil)
+	return http.ListenAndServe(port, nil)
 }

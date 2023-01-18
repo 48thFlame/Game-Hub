@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/48thFlame/Game-hub/games"
+	"github.com/48thFlame/Game-Hub/games"
 )
 
 const (

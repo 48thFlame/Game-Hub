@@ -1,7 +1,6 @@
 package games
 
 import (
-	"fmt"
 	"math/rand"
 	"reflect"
 	"sort"
@@ -79,19 +78,6 @@ const (
 
 var perfectGuessResult = []MasterResult{Black, Black, Black, Black}
 
-func (mr MasterResult) String() string {
-	switch mr {
-	case Blank:
-		return "🔳"
-	case White:
-		return "❎"
-	case Black:
-		return "✅"
-	default:
-		return ""
-	}
-}
-
 // returns a new colorSet, usually will be used to generate the answer for a mastermind game.
 func getNewRandomColorSet() [4]MasterColor {
 	shuffledColors := masterColors[:]
@@ -118,42 +104,6 @@ type MastermindGame struct {
 	Answer  [4]MasterColor   `json:"answer"`
 	Guesses [][4]MasterColor `json:"guesses"`
 	Results [][]MasterResult `json:"results"`
-}
-
-func (m *MastermindGame) String() (str string) {
-	str += masterHighlighter + "Answer:" + masterHighlighter + "\n"
-	str += strings.Repeat(masterSecretEmoji+" ", 4) + masterBoardSeparator + strings.Repeat(Black.String()+" ", 4) + "\n"
-
-	var guess [4]MasterColor
-	var result []MasterResult
-
-	for i := 0; i < MasterGameLen; i++ {
-		if len(m.Guesses) > i { //if guessed up until now, use the guess, otherwise use a blank/empty guess
-			guess = m.Guesses[i]
-			result = m.Results[i]
-		} else {
-			guess = [4]MasterColor{Empty, Empty, Empty, Empty}
-			result = []MasterResult{Blank, Blank, Blank, Blank}
-		}
-
-		str += masterHighlighter + "Round " + fmt.Sprint(i+1, ":") + masterHighlighter
-		str += "\n"
-
-		for _, color := range guess {
-			str += color.String()
-			str += " "
-		}
-		str += masterBoardSeparator
-		for _, result := range result {
-			str += result.String()
-			str += " "
-		}
-		if i != MasterGameLen-1 { // if its not the last round then should add new line char
-			str += "\n"
-		}
-	}
-
-	return
 }
 
 // guess on the game, returns whether user won or not
