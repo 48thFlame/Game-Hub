@@ -4,20 +4,14 @@ import (
 	"math/rand"
 	"reflect"
 	"sort"
-	"strings"
 )
 
-const (
-	MasterGameLen        = 7
-	masterHighlighter    = "**"
-	masterSecretEmoji    = "❓"
-	masterBoardSeparator = " -- "
-)
+const MasterGameLen = 7
 
 type MasterColor int
 
 const (
-	Empty MasterColor = iota
+	Blank MasterColor = iota
 	Red
 	Orange
 	Yellow
@@ -27,27 +21,6 @@ const (
 )
 
 var masterColors = []MasterColor{Red, Orange, Yellow, Green, Blue, Purple}
-
-func (c MasterColor) String() string {
-	switch c {
-	case Empty:
-		return "🔳"
-	case Red:
-		return "🟥"
-	case Orange:
-		return "🟧"
-	case Yellow:
-		return "🟨"
-	case Green:
-		return "🟩"
-	case Blue:
-		return "🟦"
-	case Purple:
-		return "🟪"
-	default:
-		return ""
-	}
-}
 
 func ConvertLetterToColor(letter string) MasterColor {
 	switch letter {
@@ -64,14 +37,14 @@ func ConvertLetterToColor(letter string) MasterColor {
 	case "p":
 		return Purple
 	default:
-		return Empty
+		return Blank
 	}
 }
 
 type MasterResult int
 
 const (
-	Blank MasterResult = iota
+	Empty MasterResult = iota
 	White
 	Black
 )
@@ -124,11 +97,6 @@ func (m *MastermindGame) FillResults() {
 	for _, guess := range m.Guesses {
 		m.Results = append(m.Results, getGuessResult(guess, m.Answer))
 	}
-}
-
-func (m *MastermindGame) GetAnswerString(sep string) string {
-	strs := []string{m.Answer[0].String(), m.Answer[1].String(), m.Answer[2].String(), m.Answer[3].String()}
-	return strings.Join(strs, sep)
 }
 
 func getGuessResult(guess, answer [4]MasterColor) []MasterResult {

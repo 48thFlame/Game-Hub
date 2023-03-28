@@ -41,7 +41,7 @@ func initializeMasterId() int {
 		parts := strings.Split(f.Name(), ".")
 		num, err := strconv.Atoi(parts[0])
 		if err != nil {
-			log.Printf("While in stats init, %v does not start with a number\n", f)
+			log.Printf("While in stats init, %v does not start with a number\n", f.Name())
 			continue
 		}
 
