@@ -2,57 +2,38 @@ package games
 
 import (
 	"errors"
-	"strings"
 )
 
 const (
-	connectRowsNum = 6
-	connectColsNum = 7
+	CRowsNum = 6
+	CColsNum = 7
 )
 
-type connectSpot int
+type CSpot int
 
 const (
-	ConnectEmpty connectSpot = iota
-	Connect1                 // being one players pieces
-	Connect2                 // being the other players pieces
+	CNone CSpot = iota
+	CPlr1       // being player 1
+	CPlr2       // being player 2
 )
 
-func (c connectSpot) String() string {
-	switch c {
-	case ConnectEmpty:
-		return "🔳"
-	case Connect1:
-		return "🔵"
-	case Connect2:
-		return "🔴"
-	default:
-		return ""
-	}
-}
+type CBoard = [CRowsNum][CColsNum]CSpot
 
 func NewConnect4Game() *Connect4Game {
-	return &Connect4Game{}
-}
-
-type Connect4Game [connectRowsNum][connectColsNum]connectSpot
-
-func (c *Connect4Game) String() string {
-	var sb strings.Builder
-
-	for i := 0; i < connectRowsNum; i++ {
-		for j := 0; j < connectColsNum; j++ {
-			sb.WriteString(c[i][j].String())
-		}
-
-		if i < connectRowsNum-1 { // if its the last row shouldn't add newline char
-			sb.WriteString("\n")
-		}
+	return &Connect4Game{
+		Board:   CBoard{},
+		PlrTurn: CPlr1,
+		PlrWon:  CNone,
 	}
-	return sb.String()
 }
 
-func has4connected(s []connectSpot, lookingFor connectSpot) bool {
+type Connect4Game struct {
+	Board   CBoard `json:"board"`   // an 2d array representing the board
+	PlrTurn CSpot  `json:"plrTurn"` // players turn 1/2
+	PlrWon  CSpot  `json:"plrWon"`  // player who won 1/2 or none - 0
+}
+
+func has4connected(s []CSpot, lookingFor CSpot) bool {
 	if len(s) < 4 {
 		return false
 	}
@@ -72,9 +53,10 @@ func has4connected(s []connectSpot, lookingFor connectSpot) bool {
 	return false
 }
 
-func (c *Connect4Game) won(lookingFor connectSpot) (won bool) {
+func (c *Connect4Game) won() (won bool) {
+	lookingFor := c.PlrTurn
 	// vertical checks
-	for _, row := range c {
+	for _, row := range c.Board {
 		won = has4connected(row[:], lookingFor)
 		if won {
 			return
@@ -82,9 +64,9 @@ func (c *Connect4Game) won(lookingFor connectSpot) (won bool) {
 	}
 
 	// horizontal checks
-	s := []connectSpot{}
-	for i := 0; i < connectColsNum; i++ {
-		for _, row := range c {
+	s := []CSpot{}
+	for i := 0; i < CColsNum; i++ {
+		for _, row := range c.Board {
 			s = append(s, row[i])
 		}
 		won = has4connected(s, lookingFor)
@@ -94,13 +76,13 @@ func (c *Connect4Game) won(lookingFor connectSpot) (won bool) {
 	}
 
 	// diagonal checks
-	for i := 0; i < connectRowsNum; i++ {
-		for j := 0; j < connectColsNum; j++ {
+	for i := 0; i < CRowsNum; i++ {
+		for j := 0; j < CColsNum; j++ {
 
-			s = []connectSpot{}
+			s = []CSpot{}
 			for k := 0; k < 4; k++ {
-				if i+k < connectRowsNum && j+k < connectColsNum {
-					s = append(s, c[i+k][j+k])
+				if i+k < CRowsNum && j+k < CColsNum {
+					s = append(s, c.Board[i+k][j+k])
 				}
 			}
 			won = has4connected(s, lookingFor)
@@ -108,10 +90,10 @@ func (c *Connect4Game) won(lookingFor connectSpot) (won bool) {
 				return
 			}
 
-			s = []connectSpot{}
+			s = []CSpot{}
 			for k := 0; k < 4; k++ {
-				if i+k < connectRowsNum && j-k >= 0 {
-					s = append(s, c[i+k][j-k])
+				if i+k < CRowsNum && j-k >= 0 {
+					s = append(s, c.Board[i+k][j-k])
 				}
 			}
 			won = has4connected(s, lookingFor)
@@ -124,31 +106,36 @@ func (c *Connect4Game) won(lookingFor connectSpot) (won bool) {
 	return
 }
 
-// places a pieces for the given plrNum 1|2 at the col returns whether plr who placed won(the bool), and whether was successful (whether the col not filled)(the error)
-// must be given a valid col num, between 1-7
-func (c *Connect4Game) Place(plrNum, col int) (won bool, placed error) {
-	var toPlace connectSpot
-	col--
-
-	switch plrNum {
-	case 1:
-		toPlace = Connect1
-	case 2:
-		toPlace = Connect2
-	default:
-		return false, errors.New("invalid plrNum")
+func (c *Connect4Game) nextPlayer() {
+	switch c.PlrTurn {
+	case CPlr1:
+		c.PlrTurn = CPlr2
+	case CPlr2:
+		c.PlrTurn = CPlr1
 	}
+}
 
-	placed = errors.New("column full")         // if placed doesn't become nil then the column is full
-	for i := connectRowsNum - 1; i >= 0; i-- { // going from 6-0 to start at bottom
-		if c[i][col] == ConnectEmpty {
-			c[i][col] = toPlace
+// places a pieces for the current turned plr at the col returns whether plr who placed won(the bool), and whether was successful (whether the col not filled)(the error)
+// must be given a valid col num, between 1-7
+func (c *Connect4Game) Place(col int) (won bool, placed error) {
+	col-- // turn from 1-7 to index 0-6
+
+	// if placed doesn't become nil then the column is full
+	placed = errors.New("column full")
+
+	for i := CRowsNum - 1; i >= 0; i-- { // going from 6-0 to start at bottom
+		if c.Board[i][col] == CNone {
+			c.Board[i][col] = c.PlrTurn
 			placed = nil
 			break
 		}
 	}
 
-	won = c.won(toPlace)
+	won = c.won()
+
+	if !won {
+		c.nextPlayer()
+	}
 
 	return
 }
