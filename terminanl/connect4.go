@@ -21,7 +21,7 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			placing = true
 		} else {
 			return fmt.Errorf(
-				"invalid guess arguments number expected exactly 1 found %v, Note: if you don't want to guess pass 0 arguments",
+				"invalid guess arguments number expected exactly 1 found %v, Note: if you don't want to place pass 0 arguments",
 				argsNum,
 			)
 		}
@@ -39,7 +39,7 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			return fmt.Errorf("argument is not a colmun number, convertetd with error: %v", err)
 		}
 
-		good := game.Turn(col)
+		good := game.Turn(col - 1)
 		if !good {
 			return fmt.Errorf("colmun %v is full", col)
 		}
@@ -55,10 +55,9 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			delete(i.Cmd.Data, connect4CommandDataGameName)
 
 		} else {
-			// aiWon, aiCol = game.AiTurn()
 			aiCol := games.Connect4GetAiMove(*game)
 			_ = game.Turn(aiCol)
-			fmt.Fprintf(i.Stdout, "Ai went at col: %v\n%v", aiCol, connect4GameToString(game))
+			fmt.Fprintf(i.Stdout, "Ai went at col: %v\n%v", aiCol+1, connect4GameToString(game))
 
 			if game.GameState == games.CStatePlr2Won {
 				fmt.Fprintln(i.Stdout, "The ai won, you lost :(")
@@ -79,6 +78,8 @@ func connect4GameToString(game *games.Connect4Game) string {
 		}
 		sb.WriteRune('\n')
 	}
+
+	sb.WriteString("|1|2|3|4|5|6|7|")
 
 	return sb.String()
 }
