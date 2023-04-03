@@ -48,8 +48,8 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			fmt.Fprintf(i.Stdout, "%v", connect4GameToString(game))
 			fmt.Fprintln(i.Stdout, "The game ended in a draw...")
 			delete(i.Cmd.Data, connect4CommandDataGameName)
-		}
-		if game.GameState == games.CStatePlr1Won { // ! ! ! change to be dynamic player can go second
+
+		} else if game.GameState == games.CStatePlr1Won { // ! ! ! change to be dynamic player can go second
 			fmt.Fprintf(i.Stdout, "%v", connect4GameToString(game))
 			fmt.Fprintln(i.Stdout, "Congratulations!🥳 You won!")
 			delete(i.Cmd.Data, connect4CommandDataGameName)
@@ -65,8 +65,6 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 				delete(i.Cmd.Data, connect4CommandDataGameName)
 			}
 		}
-	} else {
-		fmt.Fprintf(i.Stdout, "%v", connect4GameToString(game))
 	}
 
 	return nil

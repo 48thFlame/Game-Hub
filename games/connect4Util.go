@@ -15,72 +15,16 @@ func cGetAvailableMoves(board CBoard) []int {
 func cMovePossible(board CBoard, col int) (possible bool) {
 	col-- // turn from 1-7 to index 0-6
 
-	for i := CRowsNum - 1; i >= 0; i-- { // going from 6-0 to start at bottom
+	for i := 0; i < CRowsNum; i++ { // start at top and f sees an empty spot there is at least one possible room
 		if board[i][col] == CNone {
-			possible = true
-			break
-		}
-	}
-
-	return possible
-}
-
-func cPlrHas4Connected(board CBoard, fPiece CPlr) (won bool) {
-	// row checks
-	for _, row := range board {
-		won = has4connected(row[:], fPiece)
-		if won {
-			return won
-		}
-	}
-
-	// col checks
-	s := []CPlr{}
-	for i := 0; i < CColsNum; i++ {
-
-		for _, row := range board {
-			s = append(s, row[i])
-		}
-
-		won = has4connected(s, fPiece)
-		if won {
-			return won
-		}
-	}
-
-	// diagonal checks
-	for i := 0; i < CRowsNum; i++ {
-		for j := 0; j < CColsNum; j++ {
-
-			s = []CPlr{}
-			for k := 0; k < 4; k++ {
-				if i+k < CRowsNum && j+k < CColsNum {
-					s = append(s, board[i+k][j+k])
-				}
-			}
-			won = has4connected(s, fPiece)
-			if won {
-				return won
-			}
-
-			s = []CPlr{}
-			for k := 0; k < 4; k++ {
-				if i+k < CRowsNum && j-k >= 0 {
-					s = append(s, board[i+k][j-k])
-				}
-			}
-			won = has4connected(s, fPiece)
-			if won {
-				return won
-			}
+			return true
 		}
 	}
 
 	return false
 }
 
-func has4connected(s []CPlr, lookingFor CPlr) bool {
-	n := 4
+func cPlrHasNConnected(n int, s []CPlr, lookingFor CPlr) bool {
 	if len(s) < n {
 		return false
 	}
@@ -98,4 +42,18 @@ func has4connected(s []CPlr, lookingFor CPlr) bool {
 	}
 
 	return false
+}
+
+// remove top piece from given col
+func cRemovePieceFromBoard(board CBoard, col int) CBoard {
+	col-- // turn from 1-7 to index 0-6
+
+	for i := 0; i < CRowsNum; i++ {
+		if board[i][col] != CNone {
+			board[i][col] = CNone
+			break
+		}
+	}
+
+	return board
 }
