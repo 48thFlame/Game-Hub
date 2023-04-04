@@ -51,7 +51,7 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 
 		} else if game.GameState == games.CStatePlr1Won { // ! ! ! change to be dynamic player can go second
 			fmt.Fprintf(i.Stdout, "%v", connect4GameToString(game))
-			fmt.Fprintln(i.Stdout, "Congratulations!🥳 You won!")
+			fmt.Fprintln(i.Stdout, "Congratulations! player 1 won!")
 			delete(i.Cmd.Data, connect4CommandDataGameName)
 
 		} else {
@@ -60,13 +60,17 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			fmt.Fprintf(i.Stdout, "Ai went at col: %v\n%v", aiCol+1, connect4GameToString(game))
 
 			if game.GameState == games.CStatePlr2Won {
-				fmt.Fprintln(i.Stdout, "The ai won, you lost :(")
+				fmt.Fprintln(i.Stdout, "Congratulations! player 2 won!")
 				delete(i.Cmd.Data, connect4CommandDataGameName)
 			} else if game.GameState == games.CStateDraw {
 				fmt.Fprintln(i.Stdout, "The game ended in a draw...")
 				delete(i.Cmd.Data, connect4CommandDataGameName)
 			}
 		}
+	} else {
+		aiCol := games.Connect4GetAiMove(*game)
+		_ = game.Turn(aiCol)
+		fmt.Fprintf(i.Stdout, "Ai went at col: %v\n%v", aiCol+1, connect4GameToString(game))
 	}
 
 	return nil
@@ -82,7 +86,7 @@ func connect4GameToString(game *games.Connect4Game) string {
 		sb.WriteRune('\n')
 	}
 
-	sb.WriteString("|1|2|3|4|5|6|7|")
+	sb.WriteString("|1|2|3|4|5|6|7|\n")
 
 	return sb.String()
 }

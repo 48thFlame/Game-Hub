@@ -26,7 +26,7 @@ func NewConnect4Game() *Connect4Game {
 	return &Connect4Game{
 		Board:     CBoard{},
 		PlrTurn:   CPlr1Max,
-		GameState: CStateDraw,
+		GameState: CStatePlaying,
 		TurnNum:   0,
 	}
 }
