@@ -62,6 +62,9 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 			if game.GameState == games.CStatePlr2Won {
 				fmt.Fprintln(i.Stdout, "The ai won, you lost :(")
 				delete(i.Cmd.Data, connect4CommandDataGameName)
+			} else if game.GameState == games.CStateDraw {
+				fmt.Fprintln(i.Stdout, "The game ended in a draw...")
+				delete(i.Cmd.Data, connect4CommandDataGameName)
 			}
 		}
 	}
