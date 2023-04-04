@@ -27,6 +27,7 @@ func NewConnect4Game() *Connect4Game {
 		Board:     CBoard{},
 		PlrTurn:   CPlr1Max,
 		GameState: CStateDraw,
+		TurnNum:   0,
 	}
 }
 
@@ -35,6 +36,7 @@ type Connect4Game struct {
 	Board     CBoard       `json:"board"`   // an 2d array representing the board
 	PlrTurn   CPlr         `json:"plrTurn"` // players turn 1/2
 	GameState CStateOfGame `json:"gameState"`
+	TurnNum   int          `json:"turnNumber"`
 }
 
 func (game *Connect4Game) Turn(col int) (good bool) {
@@ -44,6 +46,7 @@ func (game *Connect4Game) Turn(col int) (good bool) {
 		game.Board = cPutPieceOnBoard(game.Board, col, game.PlrTurn)
 		game.GameState = cGetGameState(game.Board)
 		game.PlrTurn = cGetOtherPlayer(game.PlrTurn)
+		game.TurnNum += 1
 	}
 
 	return good

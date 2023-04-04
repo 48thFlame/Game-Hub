@@ -36,12 +36,12 @@ func connect4CommandHandler(i *shell.CommandInput) error {
 	if placing {
 		col, err := strconv.Atoi(i.Args[0])
 		if err != nil {
-			return fmt.Errorf("argument is not a colmun number, convertetd with error: %v", err)
+			return fmt.Errorf("argument is not a column number, converted with error: %v", err)
 		}
 
 		good := game.Turn(col - 1)
 		if !good {
-			return fmt.Errorf("colmun %v is full", col)
+			return fmt.Errorf("column %v is full", col)
 		}
 
 		if game.GameState == games.CStateDraw {
