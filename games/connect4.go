@@ -48,4 +48,3 @@ func (game *Connect4Game) Turn(col int) (good bool) {
 
 	return good
 }
-

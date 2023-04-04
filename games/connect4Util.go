@@ -40,8 +40,8 @@ func cDidPlrConnect4(board CBoard, fPiece CPlr) (won bool) {
 	}
 
 	// col checks
-	s := []CPlr{}
 	for i := 0; i < CColsNum; i++ {
+		s := []CPlr{}
 
 		for _, row := range board {
 			s = append(s, row[i])
@@ -57,7 +57,7 @@ func cDidPlrConnect4(board CBoard, fPiece CPlr) (won bool) {
 	for i := 0; i < CRowsNum; i++ {
 		for j := 0; j < CColsNum; j++ {
 
-			s = []CPlr{}
+			s := []CPlr{}
 			for k := 0; k < 4; k++ {
 				if i+k < CRowsNum && j+k < CColsNum {
 					s = append(s, board[i+k][j+k])
