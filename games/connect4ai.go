@@ -2,19 +2,28 @@ package games
 
 import "sort"
 
-func FlameAiGetMove(game Connect4Game) (col int) {
+type Connect4AiLevel int
+
+const (
+	DefaultAi Connect4AiLevel = iota
+)
+
+func FlameAiGetMove(game Connect4Game, level Connect4AiLevel) (col int) {
 	var depth int
 
-	if game.TurnNum < 3 {
-		depth = 7
-	} else if game.TurnNum < 15 {
-		depth = 8
-	} else if game.TurnNum < 22 {
-		depth = 9
-	} else if game.TurnNum < 26 {
-		depth = 11
-	} else {
-		depth = game.TurnNum * game.TurnNum
+	switch level {
+	case DefaultAi:
+		if game.TurnNum < 3 {
+			depth = 7
+		} else if game.TurnNum < 15 {
+			depth = 8
+		} else if game.TurnNum < 22 {
+			depth = 9
+		} else if game.TurnNum < 26 {
+			depth = 11
+		} else {
+			depth = game.TurnNum * game.TurnNum
+		}
 	}
 
 	initOrdered := cGetOrderedAvailableMoves(game.Board)
