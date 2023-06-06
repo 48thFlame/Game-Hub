@@ -59,9 +59,9 @@ func handleMasterPOST(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	saveMastermindGame(postStruct.Game)
-
 	fmt.Fprint(w, jsonData)
+
+	saveMastermindGame(postStruct.Game)
 }
 
 type MastermindGuessPOSTRequest struct {
