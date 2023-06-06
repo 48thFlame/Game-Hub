@@ -5,10 +5,6 @@ import (
 	"net/http"
 )
 
-func handleConnect4Requests(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Connect4"))
-}
-
 func RunApi(port string) error {
 	http.HandleFunc("/mastermind", handleMastermindRequests)
 

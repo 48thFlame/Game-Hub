@@ -9,7 +9,10 @@ import (
 	"github.com/48thFlame/Game-Hub/games"
 )
 
-const masterDBFolderName = "masterGames"
+const (
+	masterDBFolderName   = "masterGames"
+	connect4DBFolderName = "connect4Games"
+)
 
 // saveToJson saves the given json to path in the db/ folder
 func saveJsonTo(path string, data interface{}) error {
@@ -37,6 +40,18 @@ func saveMastermindGame(game *games.MastermindGame) {
 		err := saveJsonTo(fmt.Sprintf("%v/%v.json", masterDBFolderName, getDBMasterIdName()), game)
 		if err != nil {
 			log.Println("!! Error saving master game:", err)
+		}
+	}
+}
+
+func saveConnect4Game(game *games.Connect4Game) {
+	// should only save if game finished
+	over := game.GameState != games.CStatePlaying
+
+	if over {
+		err := saveJsonTo(fmt.Sprintf("%v/%v.json", connect4DBFolderName, getDBConnect4IdName()), game)
+		if err != nil {
+			log.Println("!! Error saving connect4 game:", err)
 		}
 	}
 }
